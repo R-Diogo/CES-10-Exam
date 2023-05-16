@@ -1,0 +1,1 @@
+This will be our RPG code for the CES-10 EXAM, it will basically consist of a battle in ITA we (students) will be fighting against all odds versus our institution and professors :D.

@@ -1,0 +1,1 @@
+Aqui vamos escrever algumas convenções para ajudar a entender o código do outro:
