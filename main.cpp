@@ -61,7 +61,7 @@ struct Potion {
 
 void load_character(std::fstream&, std::array<Character, 6>&);
 
-void load_potion(std::fstream&, Potion&);
+void load_potion(std::fstream&, std::array<Potion, 2>&);
 
 Status string_status(std::string);
 
@@ -77,14 +77,13 @@ void fight(Character, Character, Character, Character, bool);
 
 int main(){
     std::array<Character, 6> characters;
-    Potion verri, fritz_rene;
+    std::array<Potion, 2> potions;
     std::string file_name;
     std::cout<<"Enter a valid file with your current safe stage (if you don't have one enter one you would like to create):\n";
     std::cin>>file_name;
     std::fstream stage(file_name, std::ios::in);
     load_character(stage, characters);
-    load_potion(stage, verri);
-    load_potion(stage, fritz_rene);
+    load_potion(stage, potions);
     //ta funcionando o load_character mas tem q deixar melhor eu acho
     //tambem tem q fazer funcionar se n tiver nenhum arquivo previamente salvo
     bool professor_turn=false;
@@ -139,15 +138,17 @@ void load_character(std::fstream& _stage, std::array<Character, 6>& _character){
     }
 }
 
-void load_potion(std::fstream& _stage, Potion& _potion){
+void load_potion(std::fstream& _stage, std::array<Potion, 2>& _potion){
     std::string _potion_name;
     int num_potion1, num_potion2;
-    _stage>>_potion_name>>num_potion1>>num_potion2;
-    if(_potion_name=="Verri"){
-        _potion={"Verri", {Potion_Type::no_key, Potion_Type::friday_no_class}, {num_potion1, num_potion2}};
-    }
-    else{
-        _potion={"Fritz_Rene",{Potion_Type::renefritz_1potion, Potion_Type::renefritz_2potion}, {num_potion1, num_potion2}};
+    for(int i=0; i<2; i++){
+        _stage>>_potion_name>>num_potion1>>num_potion2;
+        if(_potion_name=="Verri"){
+            _potion[i]={"Verri", {Potion_Type::no_key, Potion_Type::friday_no_class}, {num_potion1, num_potion2}};
+        }
+        else{
+            _potion[i]={"Fritz_Rene",{Potion_Type::renefritz_1potion, Potion_Type::renefritz_2potion}, {num_potion1, num_potion2}};
+        }
     }
 }
 
