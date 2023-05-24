@@ -59,7 +59,7 @@ struct Potion {
     int num_potions[2];
 };
 
-void load_character(std::fstream&, Character[]);
+void load_character(std::fstream&, std::array<Character, 6>&);
 
 void load_potion(std::fstream&, Potion&);
 
@@ -76,7 +76,7 @@ void ai_attack(Character, Character, Character, Character);
 void fight(Character, Character, Character, Character, bool);
 
 int main(){
-    Character characters[6];
+    std::array<Character, 6> characters;
     Potion verri, fritz_rene;
     std::string file_name;
     std::cout<<"Enter a valid file with your current safe stage (if you don't have one enter one you would like to create):\n";
@@ -106,7 +106,7 @@ Status string_status(std::string _stats){
     else if(_stats=="Dizzy") return Status::Dizzy;
 }
 
-void load_character(std::fstream& _stage, Character& _character){
+void load_character(std::fstream& _stage, std::array<Character, 6>& _character){
     std::string _name, _stats;
     int _tired;
     for(int i=0;i<6;i++){
