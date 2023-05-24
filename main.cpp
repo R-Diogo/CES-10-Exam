@@ -113,27 +113,27 @@ void load_character(std::fstream& _stage, std::array<Character, 6>& _character){
         _stage>>_name>>_stats>>_tired;
         Status _status = string_status(_stats);
         if(_name=="Catatau"){
-            _character = {
+            _character[i] = {
             "Catatau", Job::Strenuous, _status, {Movement::comp_comp, Movement::full_nightlong, Movement::tired_insane}, _tired};
         }
         else if(_name=="Catabol"){
-            _character ={
+            _character[i] ={
             "Catabol", Job::Going, _status,{Movement::got_nothing, Movement::when_end, Movement::help_here}, _tired};  
         }
         else if(_name=="Gripen"){
-            _character={
+            _character[i]={
             "Gripen", Job::Median, _status,{Movement::gonna_quit, Movement::always_ELE, Movement::gripen_3attack}, _tired};
         }
         else if(_name=="Yu"){
-            _character={
+            _character[i]={
             "Yu", Job::Professor, _status,{Movement::hole_your_xxx, Movement::see_norm, Movement::disconnect_ITA}, _tired};
         }
         else if(_name=="Nobili"){
-            _character={
+            _character[i]={
             "Nobili", Job::Professor, _status,{Movement::no_class, Movement::counter_example, Movement::nobili_3attack}, _tired};
         }
         else{
-            _character={
+            _character[i]={
             "Lopes", Job::Professor, _status,{Movement::lopes_1attack, Movement::lopes_2attack, Movement::lopes_3attack}, _tired};
         }
     }
