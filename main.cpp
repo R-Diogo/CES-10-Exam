@@ -2,10 +2,10 @@
 #include <fstream>
 #include <array>
 #include <random>
-#include <map>
 
-std::size_t constexpr NUM_STUDENTS = 3;
-std::size_t constexpr NUM_CHARACTERS = 6;
+std::size_t constexpr NUM_STUDENTS = 3u;
+std::size_t constexpr NUM_CHARACTERS = 6u;
+std::size_t constexpr NUM_POTIONS = 2u;
 
 enum class Job {
     Going,
@@ -75,38 +75,47 @@ void empty_or_non_existent_file(std::fstream &, std::string);
 
 void default_file(std::fstream&);
 
-void load_stage(std::fstream &, std::string, std::array<Character, NUM_CHARACTERS>&, std::array<Potion, 2>&);
+void load_stage(std::fstream &, std::string, std::array<Character, NUM_CHARACTERS>&, std::array<Potion, NUM_POTIONS>&);
 
 void load_character(std::fstream&, std::array<Character, NUM_CHARACTERS>&);
 
 Status string_status(std::string);
 
-void load_potion(std::fstream&, std::array<Potion, 2u>&);
+void load_potion(std::fstream&, std::array<Potion, NUM_POTIONS>&);
 
 void fight(std::array<Character, NUM_CHARACTERS>&, bool&, size_t, bool&);
 
-void ai_attack(Character, Character, Character, Character);
+void ai_attack(std::array<Character, NUM_CHARACTERS>&, std::size_t);
 
-void make_move(Character, Character,bool&);
+int can_kill(Character, int);
 
-void display(Character, std::ostream& = std::cout);
+void make_move(Character&, Character&, bool&);
+
+void display_attack(std::string, Movement, std::string, std::ostream& = std::cout);
+
+void display_tired(std::array<Character, NUM_CHARACTERS>, size_t, std::ostream& = std::cout);
+
+bool move_end(std::array<Character, NUM_CHARACTERS>&, size_t);
+
+void display_options(Character, std::ostream& = std::cout);
 
 void attack_move(Character&, Character&, int);
 
-void save_and_quit(std::fstream&, std::string, std::array<Character, NUM_CHARACTERS>&, std::array<Potion, 2u>& );
+void save_and_quit(std::fstream&, std::string, std::array<Character, NUM_CHARACTERS>&, std::array<Potion, NUM_POTIONS>& );
 
 std::string status_string(Status);
 
 
 int main(){
     std::array<Character, NUM_CHARACTERS> characters;
-    std::array<Potion, 2u> potions;
+    std::array<Potion, NUM_POTIONS> potions;
     std::string file_name;
 
     std::cout << "Enter a valid file with your current safe stage (if you don't have one enter one you would like to create):\n";
     std::cin >> file_name;
     std::fstream stage(file_name);
-   
+    
+    //não ta funcionando quando coloca um file não vazio.
     empty_or_non_existent_file(stage, file_name);
     load_stage(stage, file_name, characters, potions);
 
@@ -145,12 +154,12 @@ void default_file (std::fstream &_stage){
         _stage << character[i] << " Smooth 0\n";
     }
     std::array <std::string, 2> potion = {"Verri", "Fritz_Rene"};
-    for(std::size_t i = 0u; i < 2; i++){
+    for(std::size_t i = 0u; i < NUM_POTIONS; i++){
         _stage << potion[i] << " 3 3\n";
     }  
 }
 
-void load_stage(std::fstream &_stage, std::string _file_name, std::array<Character, NUM_CHARACTERS>& _characters, std::array<Potion, 2>& _potions ){
+void load_stage(std::fstream &_stage, std::string _file_name, std::array<Character, NUM_CHARACTERS>& _characters, std::array<Potion, NUM_POTIONS>& _potions ){
     _stage.open(_file_name, std::ios::in);
     load_character(_stage, _characters);
     load_potion(_stage, _potions);
@@ -204,10 +213,10 @@ Status string_status(std::string _stats){
     else if(_stats == "Sleepy") return Status::Sleepy;
 }
 
-void load_potion(std::fstream& _stage, std::array<Potion, 2>& _potion){
+void load_potion(std::fstream& _stage, std::array<Potion, NUM_POTIONS>& _potion){
     std::string _potion_name;
     int num_potion1, num_potion2;
-    for(std::size_t i = 0u; i < 2; i++){
+    for(std::size_t i = 0u; i < NUM_POTIONS; i++){
         _stage >> _potion_name >> num_potion1 >> num_potion2;
         if(_potion_name == "Verri"){
             _potion[i] = {"Verri", {Potion_Type::no_key, Potion_Type::friday_no_class}, {num_potion1, num_potion2}};
@@ -219,9 +228,13 @@ void load_potion(std::fstream& _stage, std::array<Potion, 2>& _potion){
 }
 
 void fight(std::array<Character, NUM_CHARACTERS> &_characters, bool &_professor_turn, std::size_t num_professor, bool &_save_quit){
+    bool passed_round = false;
+    bool end_fight = false;
     while(true){
         if(_professor_turn){
-            //ai_attack(_professor, _catatau, _catabol, _gripen);
+            ai_attack(_characters, num_professor);
+            display_tired(_characters, num_professor);
+            end_fight = move_end(_characters, num_professor);
             _professor_turn = false;
         }
         else{
@@ -229,40 +242,96 @@ void fight(std::array<Character, NUM_CHARACTERS> &_characters, bool &_professor_
             for(std::size_t j = 0u; j < NUM_STUDENTS; j++){
                 if(_characters[j].status == Status::Smooth){
                     make_move(_characters[j], _characters[num_professor], _save_quit);
-                    if(_save_quit){
-                        _professor_turn = true;
-                        break;
+                    display_tired(_characters, num_professor);
+                    end_fight = move_end(_characters, num_professor);
+                    if(end_fight || _save_quit) break;
+                }
+                else if(_characters[j].status != Status::Tired){
+                    if(passed_round){
+                        passed_round = false;
+                        _characters[j].status = Status::Smooth;
+                    }
+                    else{
+                        passed_round=true;
                     }
                 }
             }
             _professor_turn = true;
         }
+        if(end_fight || _save_quit) break;
     }
 }
 
-void ai_attack(std::array<Character, NUM_CHARACTERS>& _characters){
+void ai_attack(std::array<Character, NUM_CHARACTERS>& _characters, std::size_t num_professor){
     int max_tired_student = 0;
     std::size_t aux = 0;
     for(std::size_t i = 0u; i < NUM_STUDENTS; ++i){
-        if(_characters[i].tired > max_tired_student){
+        if(_characters[i].tired > max_tired_student && _characters[i].status != Status::Tired){
             max_tired_student = _characters[i].tired;
             aux = i;
         }
     }
-    for(std::size_t i = NUM_STUDENTS; i < NUM_CHARACTERS; ++i){
-        for(std::size_t j = 0u; i < NUM_STUDENTS; ++i){
+    int movement = can_kill(_characters[num_professor], max_tired_student);
+    if(movement != -1){
+        attack_move(_characters[num_professor], _characters[aux], movement);
+        display_attack(_characters[num_professor].name, _characters[num_professor].attack[movement].move, _characters[aux].name);
+    }
+    else{
+        Character possible_students[NUM_STUDENTS] = {};
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::size_t position_array=0;
+        for(std::size_t j=0; j<NUM_STUDENTS; j++){
+            if(_characters[j].status != Status::Tired){
+                possible_students[position_array] = _characters[j];
+                position_array++;
+            }
+        }
+        std::uniform_int_distribution<> distr_student(0,position_array-1);
+        std::uniform_int_distribution<> distr_attack(0,2);
+        std::size_t num_student = distr_student(gen), num_attack = distr_attack(gen);
+        attack_move(_characters[num_professor], possible_students[num_student], num_attack);
+        display_attack(_characters[num_professor].name, _characters[num_professor].attack[num_attack].move, possible_students[num_student].name);
+    }
             //aqui quero ver qual o ataque mais forte entre os professores vivos
             //a ideia é que  se a IA pode eliminar um aluno, ela vai
             // daí o professor com o ataque mais potente ataca o aluno mais cansado
             //o aluno mais cansado é determinado no loop anterior
             //só não consegui achar o ataque mais potente ainda pq ele não é armazenado no próprio personagem aparentemente
-        }
-    }
 }
 
-void make_move(Character _character, Character _professor, bool &_save_quit){
+int can_kill(Character _professor, int max_tired_student){
+    int max_tired = 0;
+    int attack_number;
+    for(std::size_t i=0; i<3u; i++){
+        int make;
+        auto _attack = _professor.attack[i];
+        if(_attack.percentage){
+            make = (100 - max_tired_student)*_attack.make_tired;
+            if(make > max_tired){
+                max_tired = make;
+                attack_number = i;
+            }
+        }
+        else{
+            make = _attack.make_tired;
+            if(make > max_tired){
+                max_tired = make;
+                attack_number = i;
+            }
+        }
+    }
+    if(max_tired_student + max_tired >= 100) return attack_number;
+    else return -1;
+}
+
+void display_attack(std::string name_dealer, Movement move, std::string name_taker, std::ostream& os){
+    os << name_taker << " got more tired because of " << name_dealer << " " /*<< move */<< "movement\n";
+}
+
+void make_move(Character &_character, Character &_professor, bool &_save_quit){
     char attack_choice;
-    display(_character);
+    display_options(_character);
     std::cin >> attack_choice;
     switch (attack_choice){
         case '1':
@@ -283,7 +352,7 @@ void make_move(Character _character, Character _professor, bool &_save_quit){
     }
 }
 
-void display(Character _character, std::ostream& os){
+void display_options(Character _character, std::ostream& os){
     os << "Choose an option:\n";
     if(_character.name == "Catatau"){
         os << "1. comp_comp | 2. full_nightlong | 3. tired_insane | ";
@@ -295,20 +364,36 @@ void display(Character _character, std::ostream& os){
     os << "4. Potion | 5. Save and Quit\n";
 }
 
-void attack_move(Character &_character, Character &_professor, int attack_num){
-    auto _attack = _character.attack[attack_num];
+void attack_move(Character &_character_dealer, Character &_character_taker, int attack_num){
+    auto _attack = _character_dealer.attack[attack_num];
     if(_attack.status_change != "None"){
-        _character.status = string_status(_attack.status_change);
+        _character_dealer.status = string_status(_attack.status_change);
     }
     if(_attack.percentage){
-        _professor.tired += (100-_professor.tired)*_attack.make_tired;
+        _character_taker.tired += ((100-_character_taker.tired)*_attack.make_tired)/100;
     }else{
-        _professor.tired += _attack.make_tired;
+        _character_taker.tired += _attack.make_tired;
     }
-    _character.tired += _attack.get_tired;
+    _character_dealer.tired += _attack.get_tired;
 }
 
-void save_and_quit(std::fstream &_stage, std::string _file_name, std::array<Character, NUM_CHARACTERS>& _characters, std::array<Potion, 2>& _potions){
+void display_tired(std::array<Character, NUM_CHARACTERS> _characters, std::size_t num_professor, std::ostream& os){
+    for(std::size_t i=0; i<NUM_STUDENTS; i++){
+        os << _characters[i].name << " is " << _characters[i].tired << " '%' tired\n";
+    }
+    os << _characters[num_professor].name << " is " << _characters[num_professor].tired << " '%' tired\n";
+}
+
+bool move_end(std::array<Character, NUM_CHARACTERS>& _characters, std::size_t num_professor){
+    unsigned num_tired = 0;
+    for(std::size_t i=0; i<NUM_STUDENTS; i++){
+        if(_characters[i].tired >= 100) num_tired++;
+    }
+    if(_characters[num_professor].tired >= 100 || num_tired == NUM_STUDENTS) return true;
+    else return false;
+}
+
+void save_and_quit(std::fstream &_stage, std::string _file_name, std::array<Character, NUM_CHARACTERS>& _characters, std::array<Potion, NUM_POTIONS>& _potions){
     _stage.open(_file_name, std::ios::out | std::ios::trunc);
    
     for(std::size_t i = 0u; i < NUM_CHARACTERS; ++i){
@@ -317,7 +402,7 @@ void save_and_quit(std::fstream &_stage, std::string _file_name, std::array<Char
         _stage << status << ' ';
         _stage << _characters[i].tired << '\n';
     }
-    for(std::size_t i = 0u; i < 2u; ++i){
+    for(std::size_t i = 0u; i < NUM_POTIONS; ++i){
         _stage << _potions[i].name << ' ';
         _stage << _potions[i].num_potions[0] << ' ';
         _stage << _potions[i].num_potions[1] << '\n';
