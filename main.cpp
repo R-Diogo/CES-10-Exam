@@ -2,6 +2,7 @@
 #include <fstream>
 #include <array>
 #include <random>
+#include <iomanip>
 
 std::size_t constexpr NUM_STUDENTS = 3u;
 std::size_t constexpr NUM_CHARACTERS = 6u;
@@ -89,11 +90,15 @@ void ai_attack(std::array<Character, NUM_CHARACTERS>&, std::size_t);
 
 int can_kill(Character, int);
 
+unsigned choose_student(std::array<Character, NUM_CHARACTERS>, std::istream& = std::cin, std::ostream& = std::cout);
+
 void make_move(Character&, Character&, bool&);
 
 void display_attack(std::string, Movement, std::string, std::ostream& = std::cout);
 
 void display_tired(std::array<Character, NUM_CHARACTERS>, size_t, std::ostream& = std::cout);
+
+std::string make_bar (int);
 
 bool move_end(std::array<Character, NUM_CHARACTERS>&, size_t);
 
@@ -233,27 +238,23 @@ void fight(std::array<Character, NUM_CHARACTERS> &_characters, bool &_professor_
     while(true){
         if(_professor_turn){
             ai_attack(_characters, num_professor);
-            display_tired(_characters, num_professor);
             end_fight = move_end(_characters, num_professor);
+            display_tired(_characters, num_professor);
             _professor_turn = false;
         }
         else{
-            int make_tired = 0, get_tired = 0;
-            for(std::size_t j = 0u; j < NUM_STUDENTS; j++){
-                if(_characters[j].status == Status::Smooth){
-                    make_move(_characters[j], _characters[num_professor], _save_quit);
-                    display_tired(_characters, num_professor);
-                    end_fight = move_end(_characters, num_professor);
-                    if(end_fight || _save_quit) break;
+            unsigned choosen_student = choose_student(_characters);
+            make_move(_characters[choosen_student], _characters[num_professor], _save_quit);
+            end_fight = move_end(_characters, num_professor);
+            display_tired(_characters, num_professor);
+            if(end_fight || _save_quit) break;
+            if(_characters[choosen_student].status == Status::Dizzy || _characters[choosen_student].status == Status::Sleepy){
+                if(passed_round){
+                    passed_round = false;
+                    _characters[choosen_student].status = Status::Smooth;
                 }
-                else if(_characters[j].status != Status::Tired){
-                    if(passed_round){
-                        passed_round = false;
-                        _characters[j].status = Status::Smooth;
-                    }
-                    else{
-                        passed_round=true;
-                    }
+                else{
+                    passed_round=true;
                 }
             }
             _professor_turn = true;
@@ -272,42 +273,38 @@ void ai_attack(std::array<Character, NUM_CHARACTERS>& _characters, std::size_t n
         }
     }
     int movement = can_kill(_characters[num_professor], max_tired_student);
+    std::cout<< movement<<'\n';
     if(movement != -1){
         attack_move(_characters[num_professor], _characters[aux], movement);
         display_attack(_characters[num_professor].name, _characters[num_professor].attack[movement].move, _characters[aux].name);
     }
     else{
-        Character possible_students[NUM_STUDENTS] = {};
+        Character* possible_students[NUM_STUDENTS] = {};
         std::random_device rd;
         std::mt19937 gen(rd());
         std::size_t position_array=0;
         for(std::size_t j=0; j<NUM_STUDENTS; j++){
             if(_characters[j].status != Status::Tired){
-                possible_students[position_array] = _characters[j];
+                possible_students[position_array] = &_characters[j];
                 position_array++;
             }
         }
         std::uniform_int_distribution<> distr_student(0,position_array-1);
         std::uniform_int_distribution<> distr_attack(0,2);
         std::size_t num_student = distr_student(gen), num_attack = distr_attack(gen);
-        attack_move(_characters[num_professor], possible_students[num_student], num_attack);
-        display_attack(_characters[num_professor].name, _characters[num_professor].attack[num_attack].move, possible_students[num_student].name);
+        attack_move(_characters[num_professor], *possible_students[num_student], num_attack);
+        display_attack(_characters[num_professor].name, _characters[num_professor].attack[num_attack].move, (*possible_students[num_student]).name);
     }
-            //aqui quero ver qual o ataque mais forte entre os professores vivos
-            //a ideia é que  se a IA pode eliminar um aluno, ela vai
-            // daí o professor com o ataque mais potente ataca o aluno mais cansado
-            //o aluno mais cansado é determinado no loop anterior
-            //só não consegui achar o ataque mais potente ainda pq ele não é armazenado no próprio personagem aparentemente
 }
 
 int can_kill(Character _professor, int max_tired_student){
     int max_tired = 0;
     int attack_number;
-    for(std::size_t i=0; i<3u; i++){
+    for(std::size_t i = 0; i < 3u; i++){
         int make;
         auto _attack = _professor.attack[i];
         if(_attack.percentage){
-            make = (100 - max_tired_student)*_attack.make_tired;
+            make = ((100 - max_tired_student)*_attack.make_tired)/100;
             if(make > max_tired){
                 max_tired = make;
                 attack_number = i;
@@ -327,6 +324,23 @@ int can_kill(Character _professor, int max_tired_student){
 
 void display_attack(std::string name_dealer, Movement move, std::string name_taker, std::ostream& os){
     os << name_taker << " got more tired because of " << name_dealer << " " /*<< move */<< "movement\n";
+}
+
+unsigned choose_student(std::array<Character, NUM_CHARACTERS> _characters, std::istream& is, std::ostream& os){
+    os << "Choose a student :\n";
+    while(true){
+        for(std::size_t i = 0; i < NUM_STUDENTS; i++){
+            os << i+1 << ". " << (_characters[i].status != Status::Tired ? "■ " : "□ ") << _characters[i].name << ' ';
+        }
+        os<<'\n';
+        unsigned choosen_character;
+        is >> choosen_character;
+        choosen_character--;
+        if(_characters[choosen_character].status == Status::Tired){
+            os << "Enter a student that is not tired (the blank squares represents that the student is tired)\n";
+        }
+        else return choosen_character;
+    }
 }
 
 void make_move(Character &_character, Character &_professor, bool &_save_quit){
@@ -379,15 +393,37 @@ void attack_move(Character &_character_dealer, Character &_character_taker, int 
 
 void display_tired(std::array<Character, NUM_CHARACTERS> _characters, std::size_t num_professor, std::ostream& os){
     for(std::size_t i=0; i<NUM_STUDENTS; i++){
-        os << _characters[i].name << " is " << _characters[i].tired << " '%' tired\n";
+        os << std::setw(7) << _characters[i].name << std::left << //tem q adicionar um jeito de achar o maior nome.
+            make_bar(_characters[i].tired) << _characters[i].tired << "/100\n";
     }
-    os << _characters[num_professor].name << " is " << _characters[num_professor].tired << " '%' tired\n";
+    os << std::setw(7) << _characters[num_professor].name << std::left <<
+        make_bar(_characters[num_professor].tired) << _characters[num_professor].tired << "/100\n";
+}
+
+std::string make_bar(int _tired){
+    std::string tired_bar = " |";
+    unsigned full_squares, empty_squares;
+    if(_tired >100){
+        full_squares = 0;
+        empty_squares = 10;
+    }
+    else{
+        full_squares = (_tired/10 < 0 ? 10 : _tired/10);
+        empty_squares = 10 - full_squares;
+    }
+    for(int i=0; i<full_squares; i++) tired_bar += "■";
+    for(int i=0; i<empty_squares; i++) tired_bar += "□";
+    tired_bar += "| ";
+    return tired_bar;
 }
 
 bool move_end(std::array<Character, NUM_CHARACTERS>& _characters, std::size_t num_professor){
     unsigned num_tired = 0;
     for(std::size_t i=0; i<NUM_STUDENTS; i++){
-        if(_characters[i].tired >= 100) num_tired++;
+        if(_characters[i].tired >= 100) {
+            num_tired++;
+            _characters[i].status = Status::Tired;
+        }
     }
     if(_characters[num_professor].tired >= 100 || num_tired == NUM_STUDENTS) return true;
     else return false;
