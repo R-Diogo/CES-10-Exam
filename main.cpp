@@ -79,6 +79,8 @@ std::size_t choose_student(std::array<Character, NUM_CHARACTERS>, std::istream& 
 
 void make_move(std::array<Character, NUM_CHARACTERS>&, Character&, std::array<Potion_Type, NUM_POTIONS>&, bool&, std::size_t, std::istream& = std::cin);
 
+void display_status(Character, std::ostream& = std::cout);
+
 void potion_type_options(std::array<Character, NUM_CHARACTERS>&, std::array<Potion_Type, NUM_POTIONS>&, std::istream& = std::cin, std::ostream& = std::cout);
 
 void potion_options(std::array<Character, NUM_CHARACTERS>&, Potion_Type&, std::ostream& = std::cout);
@@ -362,12 +364,24 @@ void make_move(std::array<Character, NUM_CHARACTERS>& characters, Character& pro
     is >> attack_choice;
     switch (attack_choice){
         case '1':
+            if(characters[choosen_student].status != Status::Smooth){
+                display_status(characters[choosen_student]);
+                break;
+            }
             attack_move(characters[choosen_student], professor, 0);
             break;
         case '2':
+            if(characters[choosen_student].status != Status::Smooth){
+                display_status(characters[choosen_student]);
+                break;
+            }
             attack_move(characters[choosen_student], professor, 1);
             break;
         case '3':
+            if(characters[choosen_student].status != Status::Smooth){
+                display_status(characters[choosen_student]);
+                break;
+            }
             attack_move(characters[choosen_student], professor, 2);
             break;
         case '4':
@@ -377,6 +391,10 @@ void make_move(std::array<Character, NUM_CHARACTERS>& characters, Character& pro
             save_quit = true;
             break;
     }
+}
+
+void display_status(Character _student, std::ostream& os){
+    os << _student.name << " couldn't move as " << _student.name << " was " << status_string(_student.status) << '\n';
 }
 
 void potion_type_options(std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_Type, NUM_POTIONS>& potions_type, std::istream& is, std::ostream& os){
@@ -432,8 +450,8 @@ std::string potion_bar(Potion _potion){
 
 void display_options(Character _character, std::ostream& os){
     os << "Choose a move:\n";
+    if(_character.status != Status::Smooth) os << status_string(_character.status) << ' ';
     for(std::size_t i = 0; i < 3u; i++){
-        if(_character.status != Status::Smooth) os << status_string(_character.status) << ' ';
         os << i+1 << ". " << _character.attack[i].move <<  " | ";
     }
     os << "4. Potion | 5. Save and Quit\n";
