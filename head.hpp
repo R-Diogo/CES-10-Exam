@@ -30,6 +30,8 @@ struct Attack {
     int get_tired;
     bool percentage = false;
     std::string status_change = "None";
+    bool change_enemy = false;
+    bool execute = false;
 };
 
 struct Character {
@@ -77,7 +79,7 @@ int can_kill(Character, int);
 
 void attack_move(Character&, Character&, int, std::ostream& = std::cout);
 
-bool move_end(std::array<Character, NUM_CHARACTERS>&, size_t);
+bool fight_end(std::array<Character, NUM_CHARACTERS>&, size_t);
 
 void display_tired(std::array<Character, NUM_CHARACTERS>, size_t, std::ostream& = std::cout);
 
