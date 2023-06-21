@@ -80,17 +80,17 @@ void load_character(std::fstream& stage, std::array<Character, NUM_CHARACTERS>& 
             case 3:
                 character[3] = {
                 "Yu", Job::Professor, status,{
-                {"hole_your_xxx", 15, 5, true}, {"see_norm", 15, 5}, {"disconnect_ITA", 15, 5}}, _tired};
+                {"hole_your_xxx", 25, 0, true}, {"see_norm", 15, 5}, {"disconnect_ITA", 30, 10, false, "None", false, true}}, _tired};
                 break;
             case 4:
                 character[4] = {
                 "Nobili", Job::Professor, status,{
-                {"no_class", 15, 5}, {"counter_example", 15, 5}, {"nobili_3attack", 15, 5}}, _tired};
+                {"no_class", 15, -20}, {"counter_example", 25, 5}, {"nobili_3attack", 15, 5}}, _tired};
                 break;
             case 5:
                 character[5] = {
                 "Lopes", Job::Professor, status,{
-                {"lopes_1attack", 15, 5}, {"lopes_2attack", 15, 5}, {"lopes_3attack", 15, 5}}, _tired};
+                {"HaveFun", 15, -5}, {"AllSame", 10, 0, false, "Dizzy", true}, {"lopes_3attack", 15, 5}}, _tired};
                 break;
         }
     }
@@ -143,16 +143,16 @@ void fight(std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_
     while(true){
         if(professor_turn){
             ai_attack(characters, num_professor);
-            end_fight = move_end(characters, num_professor);
+            end_fight = fight_end(characters, num_professor);
             display_tired(characters, num_professor);
             professor_turn = false;
+            if(end_fight) break;
         }
         else{
             std::size_t choosen_student = choose_student(characters);
             make_move(characters, characters[num_professor], potions_type, save_quit, choosen_student);
-            end_fight = move_end(characters, num_professor);
+            end_fight = fight_end(characters, num_professor);
             display_tired(characters, num_professor);
-            if(end_fight || save_quit) break;
             if(characters[choosen_student].status == Status::Dizzy || characters[choosen_student].status == Status::Sleepy){
                 if(passed_round){
                     passed_round = false;
@@ -161,10 +161,10 @@ void fight(std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_
                 else{
                     passed_round=true;
                 }
+                professor_turn = true;
+                if(end_fight || save_quit) break;
             }
-            professor_turn = true;
         }
-        if(end_fight || save_quit) break;
     }
 }
 
@@ -214,6 +214,13 @@ int can_kill(Character _professor, int _max_tired_student){
                 attack_number = i;
             }
         }
+        else if(_attack.execute){
+            make = _attack.make_tired;
+            if(make > max_tired_attack){
+                max_tired_attack = make;
+                attack_number = i;
+            }
+        }
         else{
             make = _attack.make_tired;
             if(make > max_tired_attack){
@@ -229,11 +236,33 @@ int can_kill(Character _professor, int _max_tired_student){
 //effectively performs the attack and display what was executed
 void attack_move(Character& character_dealer, Character& character_taker, int attack_num, std::ostream& os){
     auto _attack = character_dealer.attack[attack_num];
+    if(character_dealer.status == Status::Sleepy){
+        os << character_dealer.name << " couldn't move as " << character_dealer.name << " was Sleepy \n";
+        return;
+    }
+    else if(character_dealer.status == Status::Dizzy){
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> miss_attack(0,3);
+        if(miss_attack(gen) != 0){
+            os << character_dealer.name << " missed move as " << character_dealer.name << " was Dizzy \n";
+            return;
+        }
+    }
+
     if(_attack.status_change != "None"){
-        character_dealer.status = string_status(_attack.status_change);
+        if(!_attack.change_enemy){
+            character_dealer.status = string_status(_attack.status_change);
+        }
+        else{
+            character_taker.status = string_status(_attack.status_change);
+        }
     }
     if(_attack.percentage){
         character_taker.tired += ((100-character_taker.tired)*_attack.make_tired) / 100;
+    }else if(_attack.execute){
+        if(character_taker.tired + _attack.make_tired >=100) character_taker.tired += _attack.make_tired;
+        else character_taker.tired += (_attack.make_tired/5);
     }else{
         character_taker.tired += _attack.make_tired;
     }
@@ -242,7 +271,7 @@ void attack_move(Character& character_dealer, Character& character_taker, int at
 }
 
 //update Status of characters and checks if the fight should be ended
-bool move_end(std::array<Character, NUM_CHARACTERS>& characters, std::size_t _num_professor){
+bool fight_end(std::array<Character, NUM_CHARACTERS>& characters, std::size_t _num_professor){
     unsigned num_tired = 0;
     for(std::size_t i = 0u; i < NUM_STUDENTS; ++i){
         if(characters[i].tired >= 100) {
@@ -329,24 +358,12 @@ void make_move(std::array<Character, NUM_CHARACTERS>& characters, Character& pro
     is >> attack_choice;
     switch (attack_choice){
         case '1':
-            if(characters[choosen_student].status != Status::Smooth){
-                os << characters[choosen_student].name << " couldn't move as " << characters[choosen_student].name << " was " << status_string(characters[choosen_student].status) << '\n';
-                break;
-            }
             attack_move(characters[choosen_student], professor, 0);
             break;
         case '2':
-            if(characters[choosen_student].status != Status::Smooth){
-                os << characters[choosen_student].name << " couldn't move as " << characters[choosen_student].name << " was " << status_string(characters[choosen_student].status) << '\n';
-                break;
-            }
             attack_move(characters[choosen_student], professor, 1);
             break;
         case '3':
-            if(characters[choosen_student].status != Status::Smooth){
-                os << characters[choosen_student].name << " couldn't move as " << characters[choosen_student].name << " was " << status_string(characters[choosen_student].status) << '\n';
-                break;
-            }
             attack_move(characters[choosen_student], professor, 2);
             break;
         case '4':
@@ -457,23 +474,23 @@ void display_result(std::array<Character, NUM_CHARACTERS> _characters, std::size
     }
     os<<'\n';
     if(students_tired == NUM_CHARACTERS){
-        os << "Oh no you LOST!\n";
+        os << "-------------------\n" << "☠ Oh no you LOST! ☠\n" << "-------------------\n";
     }
     else if (_characters[_professor_num].status == Status::Tired){
-        os << "Congrats you survived ";
+        os << "--------------------------------\n" << "✧ Congrats you survived ";
         switch(_professor_num - NUM_STUDENTS){
             case 0:
-                os<<"MPG-03\n";
+                os<<"MPG-03 ✧\n";
                 break;
             case 1:
-                os<<"MAT-12\n";
+                os<<"MAT-12 ✧\n";
                 break;
             case 2:
-                os<<"QUIM-18\n";
+                os<<"QUIM-18 ✧\n";
                 break;
         }
+        os << "--------------------------------\n";
     }
-    os<<'\n';
 }
 
 void save_and_quit(std::fstream& stage, std::string _file_name, std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_Type, NUM_POTIONS>& potions_type){
