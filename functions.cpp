@@ -65,7 +65,7 @@ void load_character(std::fstream& stage, std::array<Character, NUM_CHARACTERS>& 
             case 0:
                 character[0] = {
                 "Catatau", Job::Strenuous, status,{
-                {"comp_comp", 15, 5}, {"full_nightlong", 30, 25, false, "Dizzy"}, {"tired_insane", 0, -30, true, "Sleepy"}}, _tired};
+                {"comp_comp", 0, -100}, {"full_nightlong", 30, 25, false, "Dizzy"}, {"tired_insane", 0, -30, true, "Sleepy"}}, _tired};
                 break;
             case 1:
                 character[1] = {
@@ -79,17 +79,17 @@ void load_character(std::fstream& stage, std::array<Character, NUM_CHARACTERS>& 
                 break;
             case 3:
                 character[3] = {
-                "Yu", Job::Professor, status,{
+                "Yu", Job::Strenuous, status,{
                 {"hole_your_xxx", 25, 0, true}, {"see_norm", 15, 5}, {"disconnect_ITA", 30, 10, false, "None", false, true}}, _tired};
                 break;
             case 4:
                 character[4] = {
-                "Nobili", Job::Professor, status,{
+                "Nobili", Job::Median, status,{
                 {"no_class", 15, -20}, {"counter_example", 25, 5}, {"nobili_3attack", 15, 5}}, _tired};
                 break;
             case 5:
                 character[5] = {
-                "Lopes", Job::Professor, status,{
+                "Lopes", Job::Going, status,{
                 {"HaveFun", 15, -5}, {"AllSame", 10, 0, false, "Dizzy", true}, {"lopes_3attack", 15, 5}}, _tired};
                 break;
         }
@@ -124,12 +124,12 @@ void load_potion(std::fstream& stage, std::array<Potion_Type, NUM_POTIONS>& poti
 //starts game with current stage
 void start_game(std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_Type, NUM_POTIONS>& potions_type, std::fstream& stage, std::string& file_name){
     bool save_quit = false;
+    bool won;
     for(std::size_t i = NUM_STUDENTS; i < NUM_CHARACTERS; i++){
-        bool professor_turn = false;
         if(characters[i].status != Status::Tired){
-            fight(characters, potions_type, professor_turn, i, save_quit);
-            display_result(characters, i);
-            if(save_quit){
+            fight(characters, potions_type, i, save_quit);
+            won = display_result(characters, i);
+            if(save_quit || !won){
                 save_and_quit(stage, file_name, characters, potions_type);
             }
         }
@@ -137,22 +137,17 @@ void start_game(std::array<Character, NUM_CHARACTERS>& characters, std::array<Po
 }
 
 //starts fight agains professor
-void fight(std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_Type, NUM_POTIONS>& potions_type, bool & professor_turn, std::size_t num_professor, bool & save_quit){
-    bool passed_round = false;
-    bool end_fight = false;
+void fight(std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_Type, NUM_POTIONS>& potions_type, std::size_t num_professor, bool & save_quit){
+    bool passed_round = false, end_fight = false, professor_turn = false;
     while(true){
         if(professor_turn){
             ai_attack(characters, num_professor);
             end_fight = fight_end(characters, num_professor);
             display_tired(characters, num_professor);
             professor_turn = false;
-            if(end_fight) break;
         }
         else{
             std::size_t choosen_student = choose_student(characters);
-            make_move(characters, characters[num_professor], potions_type, save_quit, choosen_student);
-            end_fight = fight_end(characters, num_professor);
-            display_tired(characters, num_professor);
             if(characters[choosen_student].status == Status::Dizzy || characters[choosen_student].status == Status::Sleepy){
                 if(passed_round){
                     passed_round = false;
@@ -161,10 +156,13 @@ void fight(std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_
                 else{
                     passed_round=true;
                 }
-                professor_turn = true;
-                if(end_fight || save_quit) break;
             }
+            make_move(characters, characters[num_professor], potions_type, save_quit, choosen_student);
+            end_fight = fight_end(characters, num_professor);
+            display_tired(characters, num_professor);
+            professor_turn = true;
         }
+        if(end_fight || save_quit) break;
     }
 }
 
@@ -243,7 +241,7 @@ void attack_move(Character& character_dealer, Character& character_taker, int at
     else if(character_dealer.status == Status::Dizzy){
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> miss_attack(0,3);
+        std::uniform_int_distribution<> miss_attack(0,2);
         if(miss_attack(gen) != 0){
             os << character_dealer.name << " missed move as " << character_dealer.name << " was Dizzy \n";
             return;
@@ -267,7 +265,7 @@ void attack_move(Character& character_dealer, Character& character_taker, int at
         character_taker.tired += _attack.make_tired;
     }
     character_dealer.tired += _attack.get_tired;
-    os << character_dealer.name << " got more tired because of " << character_taker.name << " " << character_dealer.attack[attack_num].move << " movement\n";
+    os << character_taker.name << " got more tired because of " << character_dealer.name << " " << character_dealer.attack[attack_num].move << " movement\n";
 }
 
 //update Status of characters and checks if the fight should be ended
@@ -275,7 +273,7 @@ bool fight_end(std::array<Character, NUM_CHARACTERS>& characters, std::size_t _n
     unsigned num_tired = 0;
     for(std::size_t i = 0u; i < NUM_STUDENTS; ++i){
         if(characters[i].tired >= 100) {
-            ++num_tired;
+            num_tired++;
             characters[i].status = Status::Tired;
         }
     }
@@ -465,7 +463,7 @@ std::string potion_bar(Potion _potion){
 }
 
 //checks if the fight was won, lost or stopped and displays the result
-void display_result(std::array<Character, NUM_CHARACTERS> _characters, std::size_t _professor_num, std::ostream& os){
+bool display_result(std::array<Character, NUM_CHARACTERS> _characters, std::size_t _professor_num, std::ostream& os){
     unsigned students_tired = 0;
     for(std::size_t i = 0; i < NUM_STUDENTS; i++){
         if(_characters[i].status == Status::Tired){
@@ -473,24 +471,27 @@ void display_result(std::array<Character, NUM_CHARACTERS> _characters, std::size
         }
     }
     os<<'\n';
-    if(students_tired == NUM_CHARACTERS){
+    if(students_tired == NUM_STUDENTS){
         os << "-------------------\n" << "☠ Oh no you LOST! ☠\n" << "-------------------\n";
+        return false;
     }
     else if (_characters[_professor_num].status == Status::Tired){
-        os << "--------------------------------\n" << "✧ Congrats you survived ";
+        os << "----------------------------------\n" << "|✧ Congrats you survived ";
         switch(_professor_num - NUM_STUDENTS){
             case 0:
-                os<<"MPG-03 ✧\n";
+                os<<"MPG-03 ✧|\n";
                 break;
             case 1:
-                os<<"MAT-12 ✧\n";
+                os<<"MAT-12 ✧|\n";
                 break;
             case 2:
-                os<<"QUIM-18 ✧\n";
+                os<<"QUIM-18 ✧|\n";
                 break;
         }
-        os << "--------------------------------\n";
+        os << "----------------------------------\n\n";
+        return true;
     }
+    return true;
 }
 
 void save_and_quit(std::fstream& stage, std::string _file_name, std::array<Character, NUM_CHARACTERS>& characters, std::array<Potion_Type, NUM_POTIONS>& potions_type){
