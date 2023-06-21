@@ -14,7 +14,6 @@ enum class Job {
     Going,
     Strenuous,
     Median,
-    Professor,
 };
 
 enum class Status{
@@ -71,7 +70,7 @@ void load_potion(std::fstream&, std::array<Potion_Type, NUM_POTIONS>&);
 
 void start_game(std::array<Character, NUM_CHARACTERS>&, std::array<Potion_Type, NUM_POTIONS>&, std::fstream&, std::string&);
 
-void fight(std::array<Character, NUM_CHARACTERS>&, std::array<Potion_Type, NUM_POTIONS>&, bool&, size_t, bool&);
+void fight(std::array<Character, NUM_CHARACTERS>&, std::array<Potion_Type, NUM_POTIONS>&, size_t, bool&);
 
 void ai_attack(std::array<Character, NUM_CHARACTERS>&, std::size_t);
 
@@ -105,6 +104,6 @@ std::size_t display_potions(Potion_Type, std::ostream& = std::cout, std::istream
 
 std::string potion_bar(Potion);
 
-void display_result(std::array<Character, NUM_CHARACTERS>, std::size_t, std::ostream& = std::cout);
+bool display_result(std::array<Character, NUM_CHARACTERS>, std::size_t, std::ostream& = std::cout);
 
 void save_and_quit(std::fstream&, std::string, std::array<Character, NUM_CHARACTERS>&, std::array<Potion_Type, NUM_POTIONS>& );
