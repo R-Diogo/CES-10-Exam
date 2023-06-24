@@ -1,13 +1,16 @@
 #include "head.hpp"
 
 int main(){
-    std::array<Character, NUM_CHARACTERS> characters;
-    std::array<Potion_Type, NUM_POTIONS> potions_type;
+    std::vector<Character> students;
+    std::vector<Character> professors;
+    std::vector<Potion_Type> potions_type;
     std::string file_name;
 
-    auto stage = read_file(characters, potions_type, file_name);
+    auto stage = read_file(students, professors, potions_type, file_name);
 
-    start_game(characters, potions_type, stage, file_name);
+    change_characters_potions(students, professors, potions_type);
+
+    start_game(students, professors,  potions_type, stage, file_name);
 
     return 0;
 }
