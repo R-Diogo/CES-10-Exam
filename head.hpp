@@ -6,11 +6,6 @@
 #include <iomanip>
 #include <string>
 
-
-constexpr std::size_t NUM_STUDENTS = 3u;
-constexpr std::size_t NUM_CHARACTERS = 6u;
-constexpr std::size_t NUM_POTIONS = 2u;
-
 enum class Status{
     Smooth,
     Tired,

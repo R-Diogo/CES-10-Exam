@@ -37,12 +37,12 @@ void empty_file(std::fstream &file, std::string _file_name){
 
 //loads default start stage of the game
 void default_file (std::fstream & stage){
-    std::array<std::string, NUM_CHARACTERS> character = {"Catatau", "Catabol", "Gripen", "Yu", "Nobili", "Lopes"};
+    std::array<std::string, 6u> character = {"Catatau", "Catabol", "Gripen", "Yu", "Nobili", "Lopes"};
     std::array<std::string, 3u> themes = {"MPG-03", "MAT-12", "QUIM-18"};
-    std::array<Attack, 3 * NUM_CHARACTERS> attacks;
+    std::array<Attack, 18u> attacks;
     attacks[0] = {"comp_comp", 30, 10};
     attacks[1] = {"full_nightlong", 30, 25, false, "Dizzy"};
-    attacks[2] = {"tired_insane", 0, -30, true, "Sleepy"};
+    attacks[2] = {"tired_insane", 0, -30, false, "Sleepy"};
     attacks[3] = {"got_nothing", 15, 5};
     attacks[4] = {"when_end", 15, 5};
     attacks[5] = {"help_here", 15, 5};
@@ -58,7 +58,7 @@ void default_file (std::fstream & stage){
     attacks[15] = {"HaveFun", 15, -5};
     attacks[16] = {"AllSame", 10, 0, false, "Dizzy", true};
     attacks[17] = {"lopes_3attack", 15, 5};
-    for(std::size_t i = 0u; i < NUM_CHARACTERS; ++i){
+    for(std::size_t i = 0u; i < 6u; ++i){
         stage << character[i] << " Smooth 0 ";
         if(i > 2u) stage << themes[i-3];
         else stage << "None";
@@ -73,7 +73,7 @@ void default_file (std::fstream & stage){
     std::array<Potion_Type, 2> potion_type;
     potion_type[0] = {"Verri", {{"no_key", 10, 3}, {"friday_no_class", 10, 3}}};
     potion_type[1] = {"Fritz_Rene", {{"no_chem_test", 10, 3}, {"way_back_home", 10, 3}}};
-    for(std::size_t i = 0u; i < NUM_POTIONS; i++){
+    for(std::size_t i = 0u; i < 2u; i++){
         stage << potion_type[i].name << '\n';
         for(std::size_t j = 0; j < 2; j++){
             stage << potion_type[i].potion[j].potion_name << ' ' << potion_type[i].potion[j].rest << ' ' << potion_type[i].potion[j].num_potions << '\n'; 
@@ -124,8 +124,8 @@ void load_potion(std::fstream& stage, std::vector<Potion_Type>& potions_type){
         for(std::size_t i = 0; i < 2; i++){
             stage >> _potion_type.potion[i].potion_name >> _potion_type.potion[i].rest >> _potion_type.potion[i].num_potions;
         }
+        potions_type.push_back(_potion_type);
     }
-    potions_type.push_back(_potion_type);
 }
 
 void change_characters_potions(std::vector<Character>& students, std::vector<Character>& professors, std::vector<Potion_Type>& potions_type, std::ostream& os, std::istream& is){
@@ -161,8 +161,8 @@ void change_characters(std::vector<Character>& characters, std::ostream& os, std
     is >> rm_add;
     if(rm_add == '1'){
         Character new_character;
-        os << "Ok! I will need the following informations:\n The name of the character and three attacks described by name, damage dealt, damage taken, if it is in percentage, if change the status of the character, if this effect is in the enemy, if this attack is an execute\n";
-        os << "The boolean informations enter 0 for false and 1 for true, you can use negative numbers to heal and the percentage will be only used in the damage dealt";
+        os << "Ok! I will need the following informations:\n The name of the character and three attacks described by name, damage dealt, damage taken, if it is in percentage, change the status of the character, if this effect is in the enemy, if this attack is an execute.\n";
+        os << " The boolean informations enter 0 for false and 1 for true, you can use negative numbers to heal, the percentage will be only used in the damage dealt and the status change can be None, Dizzy or Sleepy.\n";
         is >> new_character.name;
         for(std::size_t i = 0; i < 3u; i++){
             is >> new_character.attack[i].move >> new_character.attack[i].make_tired >> new_character.attack[i].get_tired >> new_character.attack[i].percentage >>
@@ -172,7 +172,7 @@ void change_characters(std::vector<Character>& characters, std::ostream& os, std
     }else{
         os << "Ok! Which one do you want to delete?\n";
         for(std::size_t i = 0; i < characters.size(); i++){
-            os << characters[i].name << ((i%3 == 2)? '\n' : ' ');
+            os << i+1 << ". " << characters[i].name << ((i%3 == 2)? '\n' : ' ');
         }
         os << '\n';
         std::size_t num_del;
@@ -190,7 +190,7 @@ void change_potions(std::vector<Potion_Type>& potions_type, std::ostream& os, st
     if(rm_add == '1'){
         Potion_Type new_potion;
         os << "Ok! I will need the following informations:\n The name of the potion type and two potions described by name and heal.\n";
-        os << "The boolean informations enter 0 for false and 1 for true";
+        os << "The boolean informations enter 0 for false and 1 for true.\n";
         is >> new_potion.name;
         for(std::size_t i = 0; i < 3u; i++){
             is >> new_potion.potion[i].potion_name >> new_potion.potion[i].rest;
@@ -199,7 +199,7 @@ void change_potions(std::vector<Potion_Type>& potions_type, std::ostream& os, st
     }else{
         os << "Ok! Which one do you want to delete?\n";
         for(std::size_t i = 0; i < potions_type.size(); i++){
-            os << potions_type[i].name << ((i%3 == 2)? '\n' : ' ');
+            os << i+1 << ". " << potions_type[i].name << ((i%3 == 2)? '\n' : ' ');
         }
         os << '\n';
         std::size_t num_del;
@@ -227,9 +227,16 @@ void start_game(std::vector<Character>& students, std::vector<Character>& profes
 
 //starts fight agains professor
 void fight(std::vector<Character>& students, Character& professor, std::vector<Potion_Type>& potions_type, bool & save_quit){
-    bool passed_round = false, end_fight = false, professor_turn = false;
+    bool pass_round_s = false, pass_round_p = false, end_fight = false, professor_turn = false;
     while(true){
         if(professor_turn){
+            if(pass_round_p){
+                pass_round_p = false;
+                professor.status = Status::Smooth;
+            }
+            else{
+                pass_round_p = true;
+            }
             ai_attack(students, professor);
             end_fight = fight_end(students, professor);
             display_tired(students, professor);
@@ -238,12 +245,12 @@ void fight(std::vector<Character>& students, Character& professor, std::vector<P
         else{
             std::size_t choosen_student = choose_student(students);
             if(students[choosen_student].status == Status::Dizzy || students[choosen_student].status == Status::Sleepy){
-                if(passed_round){
-                    passed_round = false;
+                if(pass_round_s){
+                    pass_round_s = false;
                     students[choosen_student].status = Status::Smooth;
                 }
                 else{
-                    passed_round=true;
+                    pass_round_s = true;
                 }
             }
             make_move(students, professor, potions_type, choosen_student, save_quit);
@@ -273,7 +280,7 @@ void ai_attack(std::vector<Character>& students, Character& professor){
         std::vector<Character*> possible_students;
         std::random_device rd;
         std::mt19937 gen(rd());
-        for(std::size_t j=0; j<NUM_STUDENTS; j++){
+        for(std::size_t j = 0; j < students.size(); j++){
             if(students[j].status != Status::Tired){
                 possible_students.push_back(&students[j]);
             }
@@ -449,7 +456,7 @@ void make_move(std::vector<Character>& students, Character& professor, std::vect
             attack_move(students[_choosen_student], professor, students[_choosen_student].attack[1]);
             break;
         case '3':
-            attack_move(students[_choosen_student], professor, students[_choosen_student].attack[3]);
+            attack_move(students[_choosen_student], professor, students[_choosen_student].attack[2]);
             break;
         case '4':
             if(!has_potions(potions_type)){
@@ -493,8 +500,8 @@ void potion_type_options(std::vector<Character>& students, std::vector<Potion_Ty
     std::size_t num_type;
     while(true){
         os << "Choose a potion type:\n";
-        for(std::size_t i = 0; i < NUM_POTIONS; i++){
-            os << i+1 << ". " << potions_type[i].name << (i == NUM_POTIONS-1 ? "\n" : " | ");
+        for(std::size_t i = 0; i < potions_type.size(); i++){
+            os << i+1 << ". " << potions_type[i].name << (i == potions_type.size()-1 ? "\n" : " | ");
         }
         is >> num_type;
         num_type--;
@@ -509,7 +516,7 @@ void potion_type_options(std::vector<Character>& students, std::vector<Potion_Ty
 //effectively uses the potion
 void potion_options(std::vector<Character>& students, Potion_Type& potions, std::ostream& os){
     std::size_t potion_number = display_potions(potions);
-    for(std::size_t i = 0; i < NUM_STUDENTS; i++){
+    for(std::size_t i = 0; i < students.size(); i++){
         if(students[i].status != Status::Tired){
             students[i].tired -= potions.potion[potion_number].rest;
         }
@@ -582,7 +589,19 @@ void save_and_quit(std::fstream& stage, std::string _file_name, std::vector<Char
             students[i].attack[j].execute << '\n';
         }
     }
-    for(std::size_t i = 0u; i < NUM_POTIONS; ++i){
+    stage << "eos\n";
+    for(std::size_t i = 0u; i < professors.size(); ++i){
+        std::string status = status_string(professors[i].status);
+        stage << professors[i].name << ' ' << status << ' ' << professors[i].tired << ' ' << professors[i].theme << '\n';
+        for(std::size_t j = 0; j < 3; j++){
+            stage << professors[i].attack[j].move << ' ' << professors[i].attack[j].make_tired << ' ' << professors[i].attack[j].get_tired << ' ' <<
+            professors[i].attack[j].percentage << ' ' << professors[i].attack[j].status_change << ' ' << professors[i].attack[j].change_enemy << ' ' <<
+            professors[i].attack[j].execute << '\n';
+        }
+    }
+    stage << "eop\n";
+    std::cout << potions_type.size();
+    for(std::size_t i = 0u; i < potions_type.size(); ++i){
         stage << potions_type[i].name << '\n';
         for(std::size_t j = 0u; j < 2; j++){
             stage << potions_type[i].potion[j].potion_name << ' ' << potions_type[i].potion[j].rest << ' ' << potions_type[i].potion[j].num_potions << '\n';
