@@ -1,5 +1,149 @@
 #include "head.hpp"
 
+void config_page(std::ostream& os, std::istream& is){
+
+    char option;
+
+        os <<   "-----------------------------------------------------------------------------------------------------------------\n"       
+                "\t\t\t\t\t  Welcome to our CES-10 Exam\n \t\t\t\tMade by: Diogo Bueno, Lucas Barros, " 
+                "Luiz Felipe\n \t\t\t\t\t\t    T27.2\n"
+                "-----------------------------------------------------------------------------------------------------------------\n"
+                "Please enter 1 if you'd like to start the game or enter 2 if you'd to see a brief description\n"
+                "1. Start game | 2. Brief description of the attacks, potions and mechanisms\n";
+    is >> option;
+
+    switch (option) {
+        case '1':
+            break;
+        case '2':
+            tutorial();
+            break;
+    }  
+}
+
+void tutorial(std::ostream& os, std::istream& is){
+    char option;
+    bool start = false;
+    os <<   "--------------------------------------------------- Tutorial ----------------------------------------------------\n"
+            "Welcome to our RPG in which it basically consist of a battle in ITA, where we (students)\n "
+            "will be fighting against all odds versus our institution and professors :D\n\n"
+            "This page is responsable to set a brief description about the mechanisms of the game like\n"
+            "students and professors attacks, potions, status...\n\n"
+
+            "Please, enter a valid digit corresponding to the option you'd like to read about:\n"
+            "1. Students | 2. Professors | 3. Potions | 4. Few mechanichs about the game | 5. Go back to the inicial page\n";
+
+    while(start = true and is >> option){
+        tutorial_texts(option, start);  
+        os <<   "Please, enter a valid digit corresponding to the option you'd like to read about:\n"
+                "1. Students | 2. Professors | 3. Potions | 4. Few mechanichs about the game | 5. Go back to the inicial page\n";
+    }
+}
+
+void tutorial_texts(char option, bool& start, std::ostream& os){
+    switch (option) {
+        case '1':
+            os <<   "\n-------------------------------------------- The Students - Blue Team -------------------------------------------\n\n"
+                    "1. Catatau\n"
+                    "\t1st attack: comp-comp\n"
+                    "\t\tThe insane cancer is driving himself crazy in order to get COMP as his graduation.\n"
+                    "\tTo achieve this goal, the madness student studies stopless damaging the teacher in 15hp\n"
+                    "\tbesides of damaging himself in 5hp.\n\n"
+
+                    "\t2nd attack: full nightlong\n"
+                    "\t\tDespite of had insanely studied during the bimester, the madness cancer concludes that it\n"
+                    "\twas not enough and decides to study all the night long damaging himself in 30hp and attacking the\n"
+                    "\tenemy in 25hp.\n\n"
+
+                    "\t3rd attack: insanely tired\n"
+                    "\t\tAfter the insanely gagá the madness cancer finaly realizes that he's exhausted and decides to\n"
+                    "\ttake a break. In order to relax, the tired cancer takes one day off to watch anime all day long skipping \n"
+                    "\tthe next turn. As a consequence of the anime day, Catatau regenerates 30hp and will be able to make a\n"
+                    "\tstronger attack, on his next playable turn, increasing his attack in 20%.\n\n";
+            break;
+
+        case '2':
+            os <<   "\n-------------------------------------------- The Teachers - Red Team --------------------------------------------\n\n"
+                    "1. Yu\n"
+                    "\t1st attack: Hole is your XXX\n"
+                    "\t\tThe student splips over himself and asks a question to the teacher wondering how he could \n"
+                    "\tdraw the hole furiously the teacher screams to the student saying 'Hole is your XXX' dammaging\n"
+                    "\tthe student in 25% hp.\n\n"
+
+                    "\t2nd attack: Let's check on RUMAER\n"
+                    "\t\tYu in a moment of doubt after a tricky question made by a smart student can't answer but\n"
+                    "\tdammages the curious student in 15hp and himself in 5hp\n\n"
+
+                    "\t3rd attack: Disconnect from ITA\n"
+                    "\t\tYu executes the student of a fatality movement causing damage of 30hp if he can kill the\n"
+                    "\tstudent or damage 5hp if he can't kill the student\n\n"
+
+
+                    "2. Chernobilli\n"
+                    "\t1st attack: Classes canceled\n"
+                    "\t\tAs the recents changes in the fund building had affected many classes, Mr Nobilli gives \n"
+                    "\tthe power to the class to choose if they wanna to move to 'online' classes. Without knowing \n"
+                    "\tthat the class would not exist anymore, T2 accepts happily without knowing about the danger \n"
+                    "\tfuture... Because of that, Mr Nobilli damages the student in 15hp and heals himself in 10hp\n\n"
+
+                    "\t2nd attack: Counter example\n"
+                    "\t\tMr Nobilli magicaly summons a miraculous absurd counter example that proof his afimartive \n"
+                    "\ton the weekly test, damaging the students in 25hp\n\n"
+
+                    "\t3rd attack: TBD\n"
+
+
+                    "3. John Lopes\n"
+                    "\t1st attack: Have Fun!\n"
+                    "\t\tMr John Loko claims that the college period is a moment of fun and entertainment that \n"
+                    "\tyou can learn and act as your will says. The students, everyday being more exhausted, see \n"
+                    "\tthat it all was a big bizuleu and realizes that the extreme opposite way isdominating \n"
+                    "\ttheir lives, damaging the students in 15hp while Mr John Loko regenerates 5hp.\n\n"
+
+                    "\t2nd attack: Equals but diferents\n"
+                    "\t\tMr John Loko decides to use the same notation of the most advanced book of quantum chemistry \n"
+                    "\tin which the author explains the phenomenon using two terms, J and S, that are equals but \n"
+                    "\tdifferents at the same time, breaking all the physics and dimensional equality in the equations.\n"
+                    "\tThis technique seems to be a new tactic to make the students more confused, making all the 3 of \n"
+                    "\tthem dizzy.\n\n"
+
+                    "\t3rd attack: The final test will be easy, confia\n\n";
+            break;
+
+        case '3':
+            os <<   "--------------------------------------------------- Potions -----------------------------------------------------\n"
+                    "1. Verri\n\n"
+                    "a) Forgot the Key\n"
+                    "\t\tAs a heroic act, Mr. Verri forgets the room key and as we all are energyless, Mr. Verri \n"
+                    "\tdecides to cancel the class, giving a chance to our students rest a little,  regenerating our tired\n"
+                    "\tstudents in 20hp.\n\n"
+                    "b) Free Friday\n"
+                    "\t\tAs a still unknown reason, Mr Verri tends to cancel the friday classes, letting our exhausted \n"
+                    "\tstudents relax on fridays and regenerates 10hp.\n\n"
+
+                    "2. Fritz and Rene\n\n"
+                    "a) No test anymore\n"
+                    "\t\tAfter a bunch of errors in the weekly tests, the ones made against the will of your heroes \n"
+                    "\tFritz and Rene, they decided to cancel all the tests of the semester giving a humble score of\n"
+                    "\t10 to all students of the hardest class in T27, the T2.\n\n"
+                    "b) Fora de Forma\n\n"
+                    "\t\tWhile others classes are summoned every week by their QUI-18 teachers in order to stay long \n"
+                    "\thours in lab wasting energy, our heroic pair, Fritz and Rene, summons the T2 students weekly to \n"
+                    "\tthe glorious “Fora de Forma, MARCHE!” after a long half hour which one quarter o hour is destinated\n"
+                    "\tto the students Maju and Cristal to suck energy from our heroes.\n\n";
+            break;
+        case '4':
+            // aqui colocar uma breve descrição das mecanicas do jogo
+            break;
+        case '5':
+            os <<   "------------------------------------------------ End of Tutorial ------------------------------------------------\n";
+            config_page();
+            start = true;
+            break;
+
+    }
+}
+
 //get file entry and returns file with the current stage content
 std::fstream read_file(std::vector<Character>& students, std::vector<Character>& professors, std::vector<Potion_Type>& potions_type, std::string& file_name, std::ostream& os, std::istream& is){
     std::cout << "Enter a valid file with your current safe stage (if you don't have one enter one you would like to create):\n";
@@ -46,9 +190,9 @@ void default_file (std::fstream & stage){
     attacks[3] = {"got_nothing", 15, 5};
     attacks[4] = {"when_end", 15, 5};
     attacks[5] = {"help_here", 15, 5};
-    attacks[6] = {"gonna_quit", 15, 5};
-    attacks[7] = {"always_ELE", 15, 5};
-    attacks[8] = {"gripen_3attack", 15, 5};
+    attacks[6] = {"always_ELE", 15, 5};
+    attacks[7] = {"lets_go_to_DAE", 15, 5};
+    attacks[8] = {"mat17_intankable", 15, 5};
     attacks[9] = {"hole_your_xxx", 25, 0, true};
     attacks[10] = {"see_norm", 15, 5};
     attacks[11] = {"disconnect_ITA", 30, 10, false, "None", false, true};

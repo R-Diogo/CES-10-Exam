@@ -42,6 +42,12 @@ struct Potion_Type {
     Potion potion[2];
 };
 
+void config_page(std::ostream& = std::cout, std::istream& = std::cin);
+
+void tutorial(std::ostream& = std::cout, std::istream& = std::cin);
+
+void tutorial_texts(char, bool&, std::ostream& = std::cout);
+
 std::fstream read_file(std::vector<Character>&, std::vector<Character>&, std::vector<Potion_Type>&, std::string&, std::ostream& = std::cout, std::istream& = std::cin);
 
 void non_existent_file(std::fstream &, std::string);
