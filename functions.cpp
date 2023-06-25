@@ -305,9 +305,9 @@ void change_characters(std::vector<Character>& characters, std::ostream& os, std
     is >> rm_add;
     if(rm_add == '1'){
         Character new_character;
-        os << "Ok! I will need the following informations:\n The name of the character and three attacks described by name, damage dealt, damage taken, if it is in percentage, change the status of the character, if this effect is in the enemy, if this attack is an execute.\n";
+        os << "Ok! I will need the following informations:\n The name of the character, the theme of the character(if students None) and three attacks described by name, damage dealt, damage taken, if it is in percentage, change the status of the character, if this effect is in the enemy and if this attack is an execute.\n";
         os << " The boolean informations enter 0 for false and 1 for true, you can use negative numbers to heal, the percentage will be only used in the damage dealt and the status change can be None, Dizzy or Sleepy.\n";
-        is >> new_character.name;
+        is >> new_character.name >> new_character.theme;
         for(std::size_t i = 0; i < 3u; i++){
             is >> new_character.attack[i].move >> new_character.attack[i].make_tired >> new_character.attack[i].get_tired >> new_character.attack[i].percentage >>
             new_character.attack[i].status_change >> new_character.attack[i].change_enemy >> new_character.attack[i].execute;
