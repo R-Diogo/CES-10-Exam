@@ -632,7 +632,8 @@ void display_options(Character& student, std::ostream& os){
 
 bool has_potions(std::vector<Potion_Type>& potions_type, bool all, std::size_t num){
     bool has = false;
-    for(std::size_t i = (all)? 0 : num; i < (all)?  potions_type.size() : num+1; i++){
+    std::size_t i = ((all)? 0:num), end = ((all)? potions_type.size() : num+1);
+    for(; i < end; i++){
         for(std::size_t j = 0; j < 2; j++){
             if(potions_type[i].potion[j].num_potions != 0){
                 has = true;
@@ -748,7 +749,6 @@ void save_and_quit(std::fstream& stage, std::string _file_name, std::vector<Char
         }
     }
     stage << "eop\n";
-    std::cout << potions_type.size();
     for(std::size_t i = 0u; i < potions_type.size(); ++i){
         stage << potions_type[i].name << '\n';
         for(std::size_t j = 0u; j < 2; j++){
