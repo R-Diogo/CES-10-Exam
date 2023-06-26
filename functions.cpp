@@ -33,7 +33,7 @@ void tutorial(std::ostream& os, std::istream& is){
             "Please, enter a valid digit corresponding to the option you'd like to read about:\n"
             "1. Students | 2. Professors | 3. Potions | 4. Few mechanichs about the game | 5. Go back to the inicial page\n";
 
-    while(start = true and is >> option){
+    while(start == true and is >> option){
         tutorial_texts(option, start);  
         os <<   "Please, enter a valid digit corresponding to the option you'd like to read about:\n"
                 "1. Students | 2. Professors | 3. Potions | 4. Few mechanichs about the game | 5. Go back to the inicial page\n";
@@ -150,8 +150,8 @@ void tutorial_texts(char option, bool& start, std::ostream& os){
 
 //get file entry and returns file with the current stage content
 std::fstream read_file(std::vector<Character>& students, std::vector<Character>& professors, std::vector<Potion_Type>& potions_type, std::string& file_name, std::ostream& os, std::istream& is){
-    std::cout << "Enter a valid file with your current safe stage (if you don't have one enter one you would like to create):\n";
-    std::cin >> file_name;
+    os << "Enter a valid file with your current safe stage (if you don't have one enter one you would like to create):\n";
+    is >> file_name;
     std::fstream stage(file_name);
    
     non_existent_file(stage, file_name);
@@ -632,7 +632,7 @@ void display_options(Character& student, std::ostream& os){
 
 bool has_potions(std::vector<Potion_Type>& potions_type, bool all, std::size_t num){
     bool has = false;
-    for(std::size_t i = (all)? 0 : num; i < (all)?  : num+1; i++){
+    for(std::size_t i = (all)? 0 : num; i < (all)?  potions_type.size() : num+1; i++){
         for(std::size_t j = 0; j < 2; j++){
             if(potions_type[i].potion[j].num_potions != 0){
                 has = true;
