@@ -48,18 +48,17 @@ void tutorial_texts(char option, bool& start, std::ostream& os){
                     "\t1st attack: comp-comp\n"
                     "\t\tThe insane cancer is driving himself crazy in order to get COMP as his graduation.\n"
                     "\tTo achieve this goal, the madness student studies stopless damaging the teacher in 15hp\n"
-                    "\tbesides of damaging himself in 5hp.\n\n"
+                    "\thowever damaging himself in 5hp.\n\n"
 
                     "\t2nd attack: full nightlong\n"
                     "\t\tDespite of had insanely studied during the bimester, the madness cancer concludes that it\n"
-                    "\twas not enough and decides to study all the night long damaging himself in 30hp and attacking the\n"
-                    "\tenemy in 25hp.\n\n"
+                    "\twas not enough and decides to study all the night long damaging himself in 25hp and attacking the\n"
+                    "\tenemy in 30hp.\n\n"
 
                     "\t3rd attack: insanely tired\n"
                     "\t\tAfter the insanely gagá the madness cancer finaly realizes that he's exhausted and decides to\n"
                     "\ttake a break. In order to relax, the tired cancer takes one day off to watch anime all day long skipping \n"
-                    "\tthe next turn. As a consequence of the anime day, Catatau regenerates 30hp and will be able to make a\n"
-                    "\tstronger attack, on his next playable turn, increasing his attack in 20%.\n\n";
+                    "\tthe next turn. As a consequence of the anime day, Catatau regenerates 30hp.\n\n";
             break;
 
         case '2':
@@ -68,7 +67,7 @@ void tutorial_texts(char option, bool& start, std::ostream& os){
                     "\t1st attack: Hole is your XXX\n"
                     "\t\tThe student splips over himself and asks a question to the teacher wondering how he could \n"
                     "\tdraw the hole furiously the teacher screams to the student saying 'Hole is your XXX' dammaging\n"
-                    "\tthe student in 25% hp.\n\n"
+                    "\tthe student in 25'%' hp and healing 5 hp.\n\n"
 
                     "\t2nd attack: Let's check on RUMAER\n"
                     "\t\tYu in a moment of doubt after a tricky question made by a smart student can't answer but\n"
@@ -76,7 +75,7 @@ void tutorial_texts(char option, bool& start, std::ostream& os){
 
                     "\t3rd attack: Disconnect from ITA\n"
                     "\t\tYu executes the student of a fatality movement causing damage of 30hp if he can kill the\n"
-                    "\tstudent or damage 5hp if he can't kill the student\n\n"
+                    "\tstudent or damage 5hp if he can't kill the student but is damaged by 10 hp.\n\n"
 
 
                     "2. Chernobilli\n"
@@ -84,30 +83,35 @@ void tutorial_texts(char option, bool& start, std::ostream& os){
                     "\t\tAs the recents changes in the fund building had affected many classes, Mr Nobilli gives \n"
                     "\tthe power to the class to choose if they wanna to move to 'online' classes. Without knowing \n"
                     "\tthat the class would not exist anymore, T2 accepts happily without knowing about the danger \n"
-                    "\tfuture... Because of that, Mr Nobilli damages the student in 15hp and heals himself in 10hp\n\n"
+                    "\tfuture... Because of that, Mr Nobilli damages the student in 15hp and heals himself in 20hp\n\n"
 
                     "\t2nd attack: Counter example\n"
                     "\t\tMr Nobilli magicaly summons a miraculous absurd counter example that proof his afimartive \n"
-                    "\ton the weekly test, damaging the students in 25hp\n\n"
+                    "\ton the weekly test, damaging the students in 25hp but taking 5 damage\n\n"
 
-                    "\t3rd attack: TBD\n"
+                    "\t3rd attack: Just theory\n"
+                    "\t\tMr Nobili makes an impossible weekly test just based on theory, completely destroying the \n"
+                    "\tthe students, damaging the student in 12 hp and healing in 10 hp.\n\n"
 
 
                     "3. John Lopes\n"
                     "\t1st attack: Have Fun!\n"
                     "\t\tMr John Loko claims that the college period is a moment of fun and entertainment that \n"
                     "\tyou can learn and act as your will says. The students, everyday being more exhausted, see \n"
-                    "\tthat it all was a big bizuleu and realizes that the extreme opposite way isdominating \n"
-                    "\ttheir lives, damaging the students in 15hp while Mr John Loko regenerates 5hp.\n\n"
+                    "\tthat it all was a big bizuleu and realizes that the extreme opposite way is dominating \n"
+                    "\ttheir lives, damaging the students in 16hp while Mr John Loko regenerates 5hp.\n\n"
 
                     "\t2nd attack: Equals but diferents\n"
                     "\t\tMr John Loko decides to use the same notation of the most advanced book of quantum chemistry \n"
                     "\tin which the author explains the phenomenon using two terms, J and S, that are equals but \n"
                     "\tdifferents at the same time, breaking all the physics and dimensional equality in the equations.\n"
-                    "\tThis technique seems to be a new tactic to make the students more confused, making all the 3 of \n"
-                    "\tthem dizzy.\n\n"
+                    "\tThis technique seems to be a new tactic to make the students more confused, making the student dizzy \n"
+                    "\tand damaging 10 hp.\n\n"
 
-                    "\t3rd attack: The final test will be easy, confia\n\n";
+                    "\t3rd attack: Quantum changed my life\n\n"
+                    "\t\tMr John Loko afirms that quantum physics changed his life, the problem is that it changed a lot \n"
+                    "\tthe life of the students as they don't understand nothing anymore. Therefore, damaging the student\n"
+                    "\tin 20 hp and damaging himself in 5 hp.\n\n";
             break;
 
         case '3':
@@ -184,24 +188,24 @@ void default_file (std::fstream & stage){
     std::array<std::string, 6u> character = {"Catatau", "Catabol", "Gripen", "Yu", "Nobili", "Lopes"};
     std::array<std::string, 3u> themes = {"MPG-03", "MAT-12", "QUIM-18"};
     std::array<Attack, 18u> attacks;
-    attacks[0] = {"comp_comp", 30, 10};
+    attacks[0] = {"comp_comp", 15, 5};
     attacks[1] = {"full_nightlong", 30, 25, false, "Dizzy"};
-    attacks[2] = {"tired_insane", 0, -30, false, "Sleepy"};
-    attacks[3] = {"got_nothing", 15, 5};
-    attacks[4] = {"when_end", 15, 5};
-    attacks[5] = {"help_here", 15, 5};
-    attacks[6] = {"always_ELE", 15, 5};
-    attacks[7] = {"lets_go_to_DAE", 15, 5};
-    attacks[8] = {"mat17_intankable", 15, 5};
-    attacks[9] = {"hole_your_xxx", 25, 0, true};
+    attacks[2] = {"tired_insane", 0, -20, false, "Sleepy"};
+    attacks[3] = {"got_nothing", 10, -10, false, "Dizzy"};
+    attacks[4] = {"when_end", 15, -5};
+    attacks[5] = {"help_here", 14, 3};
+    attacks[6] = {"always_ELE", 10, -5};
+    attacks[7] = {"lets_go_to_DAE", 5, -15};
+    attacks[8] = {"mat17_intankable", 21, 8};
+    attacks[9] = {"hole_your_xxx", 25, -5, true};
     attacks[10] = {"see_norm", 15, 5};
     attacks[11] = {"disconnect_ITA", 30, 10, false, "None", false, true};
     attacks[12] = {"no_class", 15, -20};
     attacks[13] = {"counter_example", 25, 5};
-    attacks[14] = {"nobili_3attack", 15, 5};
-    attacks[15] = {"HaveFun", 15, -5};
+    attacks[14] = {"just_theory", 12, -10};
+    attacks[15] = {"HaveFun", 16, -5};
     attacks[16] = {"AllSame", 10, 0, false, "Dizzy", true};
-    attacks[17] = {"lopes_3attack", 15, 5};
+    attacks[17] = {"quantum_change_life", 20, 5};
     for(std::size_t i = 0u; i < 6u; ++i){
         stage << character[i] << " Smooth 0 ";
         if(i > 2u) stage << themes[i-3];
