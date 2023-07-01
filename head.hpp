@@ -5,6 +5,8 @@
 #include <random>
 #include <iomanip>
 #include <string>
+#include <chrono>
+#include <thread>
 
 enum class Status{
     Smooth,
@@ -48,7 +50,7 @@ void tutorial(std::ostream& = std::cout, std::istream& = std::cin);
 
 void tutorial_texts(char, bool&, std::ostream& = std::cout);
 
-std::fstream read_file(std::vector<Character>&, std::vector<Character>&, std::vector<Potion_Type>&, std::string&, std::ostream& = std::cout, std::istream& = std::cin);
+std::fstream read_file(std::vector<Character>&, std::vector<Character>&, std::vector<Potion_Type>&, std::string&, bool&, std::ostream& = std::cout, std::istream& = std::cin);
 
 void non_existent_file(std::fstream &, std::string);
 
@@ -56,13 +58,13 @@ void empty_file(std::fstream &, std::string);
 
 void default_file(std::fstream&);
 
-void load_stage(std::fstream &, std::string, std::vector<Character>&, std::vector<Character>&, std::vector<Potion_Type>&);
+void load_stage(std::fstream &, std::string, std::vector<Character>&, std::vector<Character>&, std::vector<Potion_Type>&, bool&);
 
-void load_character(std::fstream&, std::vector<Character>&, std::vector<Character>&);
+void load_character(std::fstream&, std::vector<Character>&, std::vector<Character>&, bool&);
 
 Status string_status(std::string);
 
-void load_potion(std::fstream&, std::vector<Potion_Type>&);
+void load_potion(std::fstream&, std::vector<Potion_Type>&, bool&);
 
 void change_characters_potions(std::vector<Character>&, std::vector<Character>&, std::vector<Potion_Type>&, std::ostream& = std::cout, std::istream& = std::cin);
 

@@ -1,1 +1,8 @@
-This will be our RPG code for the CES-10 EXAM, it will basically consist of a battle in ITA we (students) will be fighting against all odds versus our institution and professors :D.
+This is our RPG code for the CES-10 EXAM, the default game basically consist of a battle in ITA that we (students) will be fighting against all odds versus our institution and professors :D.
+Although our default game is based on our experience in ITA, you can completely change all characters, attacks and potions changing the game as you may desire, to do so you just need to enter a file and follow the instructions that will be shown (all changes can be made interactivaly, no need to chaged the source code), after that you can start playing the game.
+The game style is based on turns and boss fights (one enemy at a time) in which the player will choose one of his characters to attack the enemy, and the enemy will smartly attack his opponent, the game ends when or all characters from the player are tired or all the opponents are tired. The mecaniscs of the game are pretty simple, there will be shown plenty of options of the possible things to do and you just need to enter the number that they are related, if you are in trouble no worries there is an tutorial that explains all of this and presents you to the default game.
+Last but not least you can save the game in the file that you created and continue to play from the point you stopped, to reload the game you just need to enter the same file name as in the one you were playing.
+
+If you wish to see the evolution of the code it was all made on github which the link is the following: https://github.com/R-Diogo/CES-10-Exam
+
+We hope you like the experience in our game ッ.
