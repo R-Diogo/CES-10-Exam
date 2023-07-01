@@ -1,7 +1,7 @@
 #include "head.hpp"
 
 void config_page(std::ostream& os, std::istream& is){
-
+    std::system("clear");
     char option;
 
         os <<   "-----------------------------------------------------------------------------------------------------------------\n"       
@@ -11,6 +11,12 @@ void config_page(std::ostream& os, std::istream& is){
                 "Please enter 1 if you'd like to start the game or enter 2 if you'd to see a brief description\n"
                 "1. Start game | 2. Brief description of the attacks, potions and mechanisms\n";
     is >> option;
+    if(!is){
+        os << "Please enter a valid number.\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        config_page();
+        return;
+    }
 
     switch (option) {
         case '1':
@@ -18,10 +24,16 @@ void config_page(std::ostream& os, std::istream& is){
         case '2':
             tutorial();
             break;
+        default:
+            os << "Please enter a valid number.\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            config_page();
+            return;
     }  
 }
 
 void tutorial(std::ostream& os, std::istream& is){
+    std::system("clear");
     char option;
     bool start = false;
     os <<   "--------------------------------------------------- Tutorial ----------------------------------------------------\n"
@@ -32,8 +44,12 @@ void tutorial(std::ostream& os, std::istream& is){
 
             "Please, enter a valid digit corresponding to the option you'd like to read about:\n"
             "1. Students | 2. Professors | 3. Potions | 4. Few mechanichs about the game | 5. Go back to the inicial page\n";
-
-    while(start == true and is >> option){
+    while(!start){
+        is >> option;
+        if(!is || option > '5' || option < '1'){
+            os << "Please enter a valid number.\n";
+            continue;
+        }
         tutorial_texts(option, start);  
         os <<   "Please, enter a valid digit corresponding to the option you'd like to read about:\n"
                 "1. Students | 2. Professors | 3. Potions | 4. Few mechanichs about the game | 5. Go back to the inicial page\n";
@@ -41,6 +57,7 @@ void tutorial(std::ostream& os, std::istream& is){
 }
 
 void tutorial_texts(char option, bool& start, std::ostream& os){
+    std::system("clear");
     switch (option) {
         case '1':
             os <<   "\n-------------------------------------------- The Students - Blue Team -------------------------------------------\n\n"
@@ -149,14 +166,20 @@ void tutorial_texts(char option, bool& start, std::ostream& os){
 }
 
 //get file entry and returns file with the current stage content
-std::fstream read_file(std::vector<Character>& students, std::vector<Character>& professors, std::vector<Potion_Type>& potions_type, std::string& file_name, std::ostream& os, std::istream& is){
+std::fstream read_file(std::vector<Character>& students, std::vector<Character>& professors, std::vector<Potion_Type>& potions_type, std::string& file_name, bool& changed, std::ostream& os, std::istream& is){
+    std::system("clear");
     os << "Enter a valid file with your current safe stage (if you don't have one enter one you would like to create):\n";
     is >> file_name;
+    if(!is){
+        os << "Please enter a valid file name.\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        return(read_file(students, professors, potions_type, file_name, changed));
+    }
     std::fstream stage(file_name);
    
     non_existent_file(stage, file_name);
     empty_file(stage, file_name);
-    load_stage(stage, file_name, students, professors, potions_type);
+    load_stage(stage, file_name, students, professors, potions_type, changed);
     return stage; 
 }
 
@@ -229,14 +252,14 @@ void default_file (std::fstream & stage){
     }  
 }
 
-void load_stage(std::fstream& stage, std::string _file_name, std::vector<Character>& students, std::vector<Character>& professors, std::vector<Potion_Type>& potions_type){
+void load_stage(std::fstream& stage, std::string _file_name, std::vector<Character>& students, std::vector<Character>& professors, std::vector<Potion_Type>& potions_type, bool& changed){
     stage.open(_file_name, std::ios::in);
-    load_character(stage, students, professors);
-    load_potion(stage, potions_type);
+    load_character(stage, students, professors, changed);
+    load_potion(stage, potions_type, changed);
     stage.close();
 }
 
-void load_character(std::fstream& stage, std::vector<Character>& students, std::vector<Character>& professors){
+void load_character(std::fstream& stage, std::vector<Character>& students, std::vector<Character>& professors, bool& changed){
     std::string _status;
     bool student = true;
     Character character;
@@ -249,6 +272,7 @@ void load_character(std::fstream& stage, std::vector<Character>& students, std::
         }
         stage >> _status >> character.tired >> character.theme;
         character.status = string_status(_status);
+        if(character.tired != 0) changed = true;
         for(std::size_t i = 0; i < 3; i++){
             Attack& att = character.attack[i];
             stage >> att.move >> att.make_tired >> att.get_tired >> att.percentage >> att.status_change >> att.change_enemy >> att.execute;
@@ -266,21 +290,39 @@ Status string_status(std::string _status){
     else return Status::Sleepy;
 }
 
-void load_potion(std::fstream& stage, std::vector<Potion_Type>& potions_type){
+void load_potion(std::fstream& stage, std::vector<Potion_Type>& potions_type, bool& changed){
     Potion_Type _potion_type;
     while(stage >> _potion_type.name){
         for(std::size_t i = 0; i < 2; i++){
             stage >> _potion_type.potion[i].potion_name >> _potion_type.potion[i].rest >> _potion_type.potion[i].num_potions;
+            if(_potion_type.potion[i].num_potions != 3) changed = true;
         }
         potions_type.push_back(_potion_type);
     }
 }
 
 void change_characters_potions(std::vector<Character>& students, std::vector<Character>& professors, std::vector<Potion_Type>& potions_type, std::ostream& os, std::istream& is){
+    std::system("clear");
     os << "Do you want to add or remove any character or potion?\n1. Yes | 2. No\n";
     char add;
     is >> add;
-    if(add == '2') return;
+    if(!is){
+        os << "Please enter a valid number.\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        change_characters_potions(students, professors, potions_type);
+        return;
+    }
+    switch(add){
+        case '1':
+            break;
+        case '2':
+            return;
+        default:
+            os << "Please enter a valid number.\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            change_characters_potions(students, professors, potions_type);
+            return;
+    }
     bool stop = false;
     while(!stop){
         os << "What do you want to do?\n1. Change students | 2. Change professors | 3. Change potions type | 4. Nothing\n";
@@ -304,58 +346,88 @@ void change_characters_potions(std::vector<Character>& students, std::vector<Cha
 }
 
 void change_characters(std::vector<Character>& characters, std::ostream& os, std::istream& is){
+    std::system("clear");
     os << "You want to:\n1. Add a new one | 2. Remove\n";
     char rm_add;
     is >> rm_add;
-    if(rm_add == '1'){
-        Character new_character;
-        os << "Ok! I will need the following informations:\n The name of the character, the theme of the character(if students None) and three attacks described by name, damage dealt, damage taken, if it is in percentage, change the status of the character, if this effect is in the enemy and if this attack is an execute.\n";
-        os << " The boolean informations enter 0 for false and 1 for true, you can use negative numbers to heal, the percentage will be only used in the damage dealt and the status change can be None, Dizzy or Sleepy.\n";
-        is >> new_character.name >> new_character.theme;
-        for(std::size_t i = 0; i < 3u; i++){
-            is >> new_character.attack[i].move >> new_character.attack[i].make_tired >> new_character.attack[i].get_tired >> new_character.attack[i].percentage >>
-            new_character.attack[i].status_change >> new_character.attack[i].change_enemy >> new_character.attack[i].execute;
-        }
-        characters.push_back(new_character);
-    }else{
-        os << "Ok! Which one do you want to delete?\n";
-        for(std::size_t i = 0; i < characters.size(); i++){
-            os << i+1 << ". " << characters[i].name << ((i%3 == 2)? '\n' : ' ');
-        }
-        os << '\n';
-        std::size_t num_del;
-        is >> num_del;
+    if(!is){
+        os << "Please enter a valid number.\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        change_characters(characters);
+        return;
+    }
+    Character new_character;
+    switch(rm_add){
+        case '1':
+            os << "Ok! I will need the following informations:\n\tThe name of the character, the theme of the character(if students None) and three attacks described by name, damage dealt, damage taken, if it is in percentage, change the status of the character, if this effect is in the enemy and if this attack is an execute.\n";
+            os << "\tThe boolean informations enter 0 for false and 1 for true, you can use negative numbers to heal, the percentage will be only used in the damage dealt and the status change can be None, Dizzy or Sleepy.\n";
+            is >> new_character.name >> new_character.theme;
+            for(std::size_t i = 0; i < 3u; i++){
+                is >> new_character.attack[i].move >> new_character.attack[i].make_tired >> new_character.attack[i].get_tired >> new_character.attack[i].percentage >>
+                new_character.attack[i].status_change >> new_character.attack[i].change_enemy >> new_character.attack[i].execute;
+            }
+            characters.push_back(new_character);
+            break;
+        case '2':
+            os << "Ok! Which one do you want to delete?\n";
+            for(std::size_t i = 0; i < characters.size(); i++){
+                os << i+1 << ". " << characters[i].name << ((i%3 == 2)? '\n' : ' ');
+            }
+            os << '\n';
+            std::size_t num_del;
+            is >> num_del;
 
-        characters[num_del - 1] = characters.back();
-        characters.pop_back();
+            characters[num_del - 1] = characters.back();
+            characters.pop_back();
+            break;
+        default:
+            os << "Please enter a valid number.\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            change_characters(characters);
+            return;
+
     }
 }
 
 void change_potions(std::vector<Potion_Type>& potions_type, std::ostream& os, std::istream& is){
-   os << "You want to:\n1. Add a new one | 2. Remove\n";
+    std::system("clear");
+    os << "You want to:\n1. Add a new one | 2. Remove\n";
     char rm_add;
     is >> rm_add;
-    if(rm_add == '1'){
-        Potion_Type new_potion;
-        os << "Ok! I will need the following informations:\n The name of the potion type and two potions described by name and heal.\n";
-        os << "The boolean informations enter 0 for false and 1 for true.\n";
-        is >> new_potion.name;
-        for(std::size_t i = 0; i < 3u; i++){
-            is >> new_potion.potion[i].potion_name >> new_potion.potion[i].rest;
-        }
-        potions_type.push_back(new_potion);
-    }else{
-        os << "Ok! Which one do you want to delete?\n";
-        for(std::size_t i = 0; i < potions_type.size(); i++){
-            os << i+1 << ". " << potions_type[i].name << ((i%3 == 2)? '\n' : ' ');
-        }
-        os << '\n';
-        std::size_t num_del;
-        is >> num_del;
+    if(!is){
+        os << "Please enter a valid number.\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        change_potions(potions_type);
+        return;
+    }
+    Potion_Type new_potion;
+    switch(rm_add){
+        case '1':
+            os << "Ok! I will need the following informations:\n\tThe name of the potion type and two potions described by name and heal.\n";
+            is >> new_potion.name;
+            for(std::size_t i = 0; i < 2u; i++){
+                is >> new_potion.potion[i].potion_name >> new_potion.potion[i].rest;
+            }
+            potions_type.push_back(new_potion);
+            break;
+        case '2':
+            os << "Ok! Which one do you want to delete?\n";
+            for(std::size_t i = 0; i < potions_type.size(); i++){
+                os << i+1 << ". " << potions_type[i].name << ((i%3 == 2)? '\n' : ' ');
+            }
+            os << '\n';
+            std::size_t num_del;
+            is >> num_del;
 
-        potions_type[num_del - 1] = potions_type.back();
-        potions_type.pop_back();
-    }   
+            potions_type[num_del - 1] = potions_type.back();
+            potions_type.pop_back();
+            break;
+        default:
+            os << "Please enter a valid number.\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            change_potions(potions_type);
+            return;
+    }
 }
 
 //starts game with current stage
@@ -375,9 +447,13 @@ void start_game(std::vector<Character>& students, std::vector<Character>& profes
 
 //starts fight agains professor
 void fight(std::vector<Character>& students, Character& professor, std::vector<Potion_Type>& potions_type, bool & save_quit){
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::system("clear");
     bool pass_round_s = false, pass_round_p = false, end_fight = false, professor_turn = false;
-    while(true){
+    while(!end_fight && !save_quit){
         if(professor_turn){
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+            std::system("clear");
             if(pass_round_p){
                 pass_round_p = false;
                 professor.status = Status::Smooth;
@@ -406,7 +482,6 @@ void fight(std::vector<Character>& students, Character& professor, std::vector<P
             display_tired(students, professor);
             professor_turn = true;
         }
-        if(end_fight || save_quit) break;
     }
 }
 
@@ -576,19 +651,24 @@ std::string status_string(Status _status){
 //selects students to use in the round
 std::size_t choose_student(std::vector<Character>& students, std::istream& is, std::ostream& os){
     os << "Choose a student :\n";
-    while(true){
+    bool not_valid = true;
+    std::size_t choosen_character;
+    while(not_valid){
         for(std::size_t i = 0u; i < students.size(); i++){
             os << i + 1 << ". " << (students[i].status != Status::Tired ? "■ " : "□ ") << students[i].name << ' ';
         }
         os<<'\n';
-        std::size_t choosen_character;
         is >> choosen_character;
-        choosen_character--;
-        if(students[choosen_character].status == Status::Tired){
-            os << "Enter a student that is not tired (the blank squares represents that the student is tired)\n";
+        if(!is){
+            os << "Please enter a valid number.\n";
+            continue;
         }
-        else return choosen_character;
+        choosen_character--;
+        if(choosen_character >= students.size()) os << "Please enter a valid number.\n";
+        else if(students[choosen_character].status == Status::Tired) os << "Enter a student that is not tired (the blank squares represents that the student is tired)\n";
+        else not_valid = false;
     }
+    return choosen_character;
 }
 
 //options of the round
@@ -596,6 +676,11 @@ void make_move(std::vector<Character>& students, Character& professor, std::vect
     char attack_choice;
     display_options(students[_choosen_student]);
     is >> attack_choice;
+    if(!is){
+        os << "Please enter a valid number.\n";
+        make_move(students, professor, potions_type, _choosen_student, save_quit);
+        return;
+    }
     switch (attack_choice){
         case '1':
             attack_move(students[_choosen_student], professor, students[_choosen_student].attack[0]);
@@ -610,13 +695,17 @@ void make_move(std::vector<Character>& students, Character& professor, std::vect
             if(!has_potions(potions_type)){
                 os << "You don't have more potions.\n";
                 make_move(students, professor, potions_type, _choosen_student, save_quit);
-                break;
+                return;
             }
             potion_type_options(students, potions_type);
             break;
         case '5':
             save_quit = true;
             break;
+        default:
+            os << "Please enter a valid number.\n";
+            make_move(students, professor, potions_type, _choosen_student, save_quit);
+            return;
     }
 }
 
@@ -647,17 +736,21 @@ bool has_potions(std::vector<Potion_Type>& potions_type, bool all, std::size_t n
 //displays types of potions available
 void potion_type_options(std::vector<Character>& students, std::vector<Potion_Type>& potions_type, std::istream& is, std::ostream& os){
     std::size_t num_type;
-    while(true){
+    bool not_valid = true;
+    while(not_valid){
         os << "Choose a potion type:\n";
         for(std::size_t i = 0; i < potions_type.size(); i++){
             os << i+1 << ". " << potions_type[i].name << (i == potions_type.size()-1 ? "\n" : " | ");
         }
         is >> num_type;
-        num_type--;
-        if(has_potions(potions_type, false, num_type)) break;
-        else{
-            os << potions_type[num_type].name << " has no potions, please enter another one\n";
+        if(!is){
+            os << "Please enter a valid number.\n";
+            continue;
         }
+        num_type--;
+        if(num_type >= potions_type.size()) os << "Please enter a valid number.\n";
+        else if(has_potions(potions_type, false, num_type)) not_valid = false;
+        else os << potions_type[num_type].name << " has no potions, please enter another one\n";
     }
     potion_options(students, potions_type[num_type]);
 }
@@ -678,19 +771,21 @@ void potion_options(std::vector<Character>& students, Potion_Type& potions, std:
 std::size_t display_potions(Potion_Type& potions, std::ostream& os, std::istream& is){
     os << "Choose a potion:\n";
     std::size_t potion_number;
-    while(true){
+    bool not_valid = true;
+    while(not_valid){
         for(std::size_t i = 0; i < 2u; i++){
             os << i+1 << ". " << potions.potion[i].potion_name << potion_bar(potions.potion[i]);
         }
         os << "\n";
         is >> potion_number;
+        if(!is){
+            os << "Please enter a valid number.\n";
+            continue;
+        }
         potion_number--;
-        if(potions.potion[potion_number].num_potions != 0){
-            break;
-        }
-        else{
-            os << "Please choose a valid potion, the empty squares represents the potions you still have\n";
-        }
+        if(potion_number >= 2) os << "Please enter a valid number.\n";
+        else if(potions.potion[potion_number].num_potions != 0) not_valid = false;
+        else os << "Please choose a valid potion, the empty squares represents the potions you still have\n";
     }
     return potion_number;
 }

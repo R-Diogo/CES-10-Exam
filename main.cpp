@@ -5,12 +5,13 @@ int main(){
     std::vector<Character> professors;
     std::vector<Potion_Type> potions_type;
     std::string file_name;
+    bool changed = false;
 
     config_page();
 
-    auto stage = read_file(students, professors, potions_type, file_name);
+    auto stage = read_file(students, professors, potions_type, file_name, changed);
 
-    change_characters_potions(students, professors, potions_type);
+    if(!changed) change_characters_potions(students, professors, potions_type);
 
     start_game(students, professors,  potions_type, stage, file_name);
 
