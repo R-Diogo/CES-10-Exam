@@ -75,7 +75,37 @@ void tutorial_texts(char option, bool& start, std::ostream& os){
                     "\t3rd attack: insanely tired\n"
                     "\t\tAfter the insanely gagá the madness cancer finaly realizes that he's exhausted and decides to\n"
                     "\ttake a break. In order to relax, the tired cancer takes one day off to watch anime all day long skipping \n"
-                    "\tthe next turn. As a consequence of the anime day, Catatau regenerates 30hp.\n\n";
+                    "\tthe next turn. As a consequence of the anime day, Catatau regenerates 30hp.\n\n"
+
+                    "2. Catabol\n"
+                    "\t1st attack: got nothing\n"
+                    "\t\tDuring one more day in ITA, catabol found himself extremely lost on the subject. As a consequence of his\n"
+                    "\tterrible state of mind that he finds himself in, he attacks causing 10 damage to the enemy and hurts himself in 10hp.\n\n"
+
+                    "\t2nd attack: When it ends?\n"
+                    "\t\tDuring one unfinishable class in ITA, catabol feels an immense will to go home, causing 15 damage to the enemy\n"
+                    "\tand damaging himself in 5hp.\n\n"
+
+                    "\t3rd attack: need help here!\n"
+                    "\t\ts a conseuqence of the final Exams approach, catabol finds himself deseprate to learn the content of the whole semester\n"
+                    "\tin only a few hours. Because of that, catabol attacks causes 14hp damage to the enemy and heals himself in 3hp.\n\n"
+
+
+                    "3. Gripen\n"
+                    "\t1st attack: always ELE\n"
+                    "\t\tAas a failured try to get comp as his especialization, gripen transformed himself in a eletronic\n"
+                    "\tlover, turning his life much easier as nobody likes eletronics, so he get enough energy to damage the\n"
+                    "\tteacher in 15hp and loses 5hp as a consequence of his failure.\n\n"
+
+                    "\t2nd attack: lets go to DAE\n"
+                    "\t\tAfter bad results, the trauma caused in gripen makes him say 'lets go to DAE' after any test or exam\n"
+                    "\tbut, as he likes to study at ITA, he never goes cause in last moments, he still makes it with some resonable\n"
+                    "\tgrads. As the consequence of his bad results he damages himself in 15hp but the teacher injuries in 5hp.\n\n"
+
+                    "\t3rd attack: MAT17 intankeble\n"
+                    "\t\tAfter the worst result as gripen got in the first bimester (C- in MAT17), gripen has traumatized in the subject\n"
+                    "\tand for the second bimester, he studied very much and as consequence of that, he got a really great result\n"
+                    "\tturning the bad situation. Cause of that, he damages the teacher in 21hp and heals himself in 8hp\n\n";
             break;
 
         case '2':
@@ -154,7 +184,28 @@ void tutorial_texts(char option, bool& start, std::ostream& os){
                     "\tto the students Maju and Cristal to suck energy from our heroes.\n\n";
             break;
         case '4':
-            // aqui colocar uma breve descrição das mecanicas do jogo
+            os <<   "------------------------------------------------- Few Mechanics -------------------------------------------------\n"
+
+                    "\tThis is our RPG code for the CES-10 EXAM, the default game basically consist of a battle in ITA that\n"
+                    " we (students) will be fighting against all odds versus our institution and professors :D.\n\n"
+                    "\tAlthough our default game is based on our experience in ITA, you can completely change all characters,\n"
+                    "attacks and potions changing the game as you may desire, to do so you just need to enter a file and follow \n"
+                    "the instructions that will be shown (all changes can be made interactivaly, no need to chaged the source code), \n"
+                    "after that you can start playing the game.\n\n"
+                    "\tThe game style is based on turns and boss fights (one enemy at a time) in which the player will choose \n"
+                    "one of his characters to attack the enemy, and the enemy will smartly attack his opponent, the game ends \n"
+                    "when or all characters from the player are tired or all the opponents are tired. The mecaniscs of the game \n"
+                    "are pretty simple, there will be shown plenty of options of the possible things to do and you just need to enter \n"
+                    "the number that they are related, if you are in trouble no worries there is an tutorial that explains all of this\n"
+                    "and presents you to the default game.\n\n"
+                    "\tLast but not least you can save the game in the file that you created and continue to play from the point you \n"
+                    "stopped, to reload the game you just need to enter the same file name as in the one you were playing.\n\n"
+                    "\tYou can enter any file aswell, the file system will check 2 possibilities:\n"
+                    "\t\t1) The file exists? if it exists, then he tries to read it and see if there's a saved game. If it \n"
+                    "\t\tdoesn't exists then it will be created and the default game will be written on the file.\n\n"
+                    "\t\t2) Is the file empty? if it is, then the deafult game will be loaded, otherwise, the game on the file\n"
+                    "\t\twill be loaded\n\n"
+                    "\tThat's it, let's start the game! We hope that you enjoy! :)\n\n";
             break;
         case '5':
             os <<   "------------------------------------------------ End of Tutorial ------------------------------------------------\n";
